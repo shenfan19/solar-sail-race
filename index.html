@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sail Race</title>
+<style>
+  :root { --bg:#0e1424; --panel:#161e36; --text:#dbe4ff; --muted:#8ea0c8; --accent:#ffaa33; --good:#33cc99; }
+  @media (prefers-color-scheme: light) { :root { --bg:#f2f4fa; --panel:#e4e9f6; --text:#1b2540; --muted:#52608a; } }
+  body { margin:0; background:var(--bg); color:var(--text); font:15px/1.5 system-ui, sans-serif; }
+  main { max-width:980px; margin:0 auto; padding:16px; }
+  h1 { font-size:22px; margin:0 0 4px; }
+  p { margin:6px 0; color:var(--muted); }
+  canvas { width:100%; height:auto; background:#0b1020; border-radius:8px; display:block; }
+  .row { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:10px 0; }
+  .card { background:var(--panel); border-radius:8px; padding:10px 12px; }
+  label { display:flex; align-items:center; gap:8px; }
+  input[type=range] { width:200px; }
+  button, select { background:var(--panel); color:var(--text); border:1px solid var(--muted); border-radius:6px; padding:5px 10px; font:inherit; cursor:pointer; }
+  button:hover { border-color:var(--accent); }
+  #hud { font-family:ui-monospace, monospace; font-size:13px; }
+  #barBox { height:6px; background:var(--panel); border-radius:3px; margin-top:6px; overflow:hidden; }
+  #bar { height:100%; width:0; background:var(--good); }
+  textarea { width:100%; box-sizing:border-box; height:56px; background:var(--panel); color:var(--text); border:1px solid var(--muted); border-radius:6px; font:12px ui-monospace, monospace; }
+  #result { color:var(--accent); min-height:1.4em; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Sail Race</h1>
+  <p>Race a solar sail through gravity and light. No reflexes needed: pause and time warp are free, only the path counts.</p>
+  <div class="row">
+    <label>Level <select id="level"></select></label>
+    <label>Control <select id="ctrl"></select></label>
+    <button id="restart">Restart</button>
+    <button id="pause">Pause</button>
+    <span>Speed
+      <button data-warp="1">1x</button><button data-warp="5">5x</button><button data-warp="20">20x</button><button data-warp="100">100x</button>
+    </span>
+  </div>
+  <p id="story"></p>
+  <canvas id="view" width="960" height="480"></canvas>
+  <div class="card" style="margin-top:10px">
+    <div id="hud"></div>
+    <div id="barBox"><div id="bar"></div></div>
+  </div>
+  <div class="row card">
+    <label><span id="aName">A</span> <input id="ca" type="range" min="0" max="85" step="1" value="0"> <b id="aV">0&deg;</b></label>
+    <label><span id="bName">B</span> <input id="cb" type="range" min="-180" max="180" step="1" value="0"> <b id="bV">0&deg;</b></label>
+    <span style="color:var(--muted)">Arrow keys: up/down first angle, left/right second angle, Shift for 5&deg;, Space to pause</span>
+  </div>
+  <p id="ctrlHelp"></p>
+  <p>The red line is the sail normal. The green dashed line shows where you go if you change nothing. Switching the control scheme restarts the level and keeps separate best times.</p>
+  <div class="card">
+    <div>Personal best: <b id="best"></b></div>
+    <div id="result"></div>
+    <textarea id="code" placeholder="Replay code appears here after you reach the goal. Paste someone else's code and press Load ghost."></textarea>
+    <div class="row">
+      <button id="copy">Copy code</button>
+      <button id="ghostLoad">Load ghost</button>
+      <button id="ghostRef">Reference solution as ghost</button>
+      <button id="ghostClear">Clear ghost</button>
+    </div>
+  </div>
+</main>
+<script src="js/trig.js"></script>
+<script src="js/controls.js"></script>
+<script src="js/sim.js"></script>
+<script src="js/levels.js"></script>
+<script src="js/solutions.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>
