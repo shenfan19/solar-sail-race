@@ -7,30 +7,7 @@ const path = require('path');
 const Sim = require('../js/sim.js');
 const Controls = require('../js/controls.js');
 const levels = require('../js/levels.js');
-
-const DEG = Math.PI / 180;
-
-// Wanted sail normal in the light frame (n1 along e1, n2 along e2, n3 along l).
-function wanted(s, opt) {
-  const sa = Math.sin(opt.cone * DEG), ca = Math.cos(opt.cone * DEG);
-  if (opt.law === 'spiral') return [sa, 0, ca]; // lean forward along the orbit: raises orbital energy
-  // 'incline': thrust along +-h, switching sign at the nodes, which raises the inclination fastest
-  const F = Sim.frame(s, {});
-  const hx = s.y * s.vz - s.z * s.vy, hy = s.z * s.vx - s.x * s.vz, hz = s.x * s.vy - s.y * s.vx;
-  const hn = Math.hypot(hx, hy, hz);
-  const h = [hx / hn, hy / hn, hz / hn];
-  let nx = -h[1], ny = h[0]; // node direction = z x h
-  const nn = Math.hypot(nx, ny);
-  if (nn < 1e-6) { nx = 1; ny = 0; } else { nx /= nn; ny /= nn; }
-  const sign = (s.x * nx + s.y * ny) >= 0 ? 1 : -1;
-  const d = [sign * h[0], sign * h[1], sign * h[2]];
-  const dl = d[0] * F.lx + d[1] * F.ly + d[2] * F.lz;
-  const ex = d[0] - dl * F.lx, ey = d[1] - dl * F.ly, ez = d[2] - dl * F.lz;
-  const c1 = ex * F.e1x + ey * F.e1y + ez * F.e1z;
-  const c2 = ex * F.e2x + ey * F.e2y + ez * F.e2z;
-  const m = Math.hypot(c1, c2) || 1;
-  return [sa * c1 / m, sa * c2 / m, ca];
-}
+const Guide = require('../js/guide.js');
 
 function solve(level, schemeId) {
   const opt = level.autopilot, scheme = Controls.registry[schemeId], every = 10;
@@ -39,7 +16,7 @@ function solve(level, schemeId) {
   let cur = null;
   while (!s.done) {
     if (s.tick % every === 0) {
-      const n = wanted(s, opt);
+      const n = Guide.wanted(s, opt);
       const [a, b] = Controls.clamp(scheme, ...scheme.fromLocal(n[0], n[1], n[2]));
       if (!cur || cur.a !== a || cur.b !== b) { cur = { t: s.tick, a: a, b: b }; keys.push(cur); }
     }

@@ -19,6 +19,23 @@
       fail: { rMin: 0.2, rMax: 2.5 },
       maxTicks: 20000,
       autopilot: { law: 'spiral', cone: 35 },
+      difficulty: 'Easy',
+      medals: { gold: 130, silver: 165, bronze: 230 },
+      brief: {
+        goal: 'Spiral out to the orbit of Mars, 1.52 AU from the Sun.',
+        steps: [
+          'Sunlight pushes the sail along the red arrow.',
+          'Lean the sail forward along the orbit to gain speed and climb to a higher orbit.',
+          'Follow the green dot on the tilt pad. The fastest time wins.'
+        ]
+      },
+      hints: {
+        first: 'Drag the pad, push the stick or press the arrow keys to tilt the sail.',
+        steps: [
+          { p: 0, text: 'Lean the sail forward, pad to the right, to climb.' },
+          { p: 0.6, text: 'Keep leaning. Mars is getting close.' }
+        ]
+      },
       view: { span: 1.8, rate: 4 }
     },
     {
@@ -35,6 +52,24 @@
       fail: { rMin: 0.1, rMax: 2.5 },
       maxTicks: 20000,
       autopilot: { law: 'incline', cone: 35 },
+      difficulty: 'Medium',
+      medals: { gold: 1500, silver: 1900, bronze: 2600 },
+      brief: {
+        goal: 'Tilt your orbit around the Sun by 75 degrees or more.',
+        steps: [
+          'Light can push the sail out of its orbit plane as well as along it.',
+          'Lean up while you are on the right of the Sun and down while you are on the left. Every half orbit tilts the plane a little more.',
+          'The pink line marks where your orbit crosses the flat plane. Switch the lean when you cross it. The green dot shows the best lean.'
+        ]
+      },
+      hints: {
+        first: 'Drag the pad, push the stick or press the arrow keys to tilt the sail.',
+        steps: [
+          { p: 0, text: 'Lean up on one side of the Sun, down on the other. Switch at the pink line.' },
+          { p: 0.5, text: 'Halfway there. Keep switching at the pink line.' },
+          { p: 0.85, text: 'Almost polar!' }
+        ]
+      },
       view: { span: 1.6, rate: 10 }
     },
     {
@@ -55,6 +90,24 @@
       fail: { rMin: 1.2, rMax: 20 },
       maxTicks: 200000,
       autopilot: { law: 'incline', cone: 35 },
+      difficulty: 'Hard',
+      medals: { gold: 860, silver: 1100, bronze: 1500 },
+      brief: {
+        goal: 'Tilt your orbit around the Earth by 80 degrees or more.',
+        steps: [
+          'Sunlight comes from one side and slowly turns around the sky.',
+          'The Earth casts a shadow, and inside it the sail gets no push.',
+          'Switch the lean when you cross the pink line. The green dot shows the best lean.'
+        ]
+      },
+      hints: {
+        first: 'Drag the pad, push the stick or press the arrow keys to tilt the sail.',
+        steps: [
+          { p: 0, text: 'Switch the lean each time you cross the pink line.' },
+          { p: 0.5, text: 'Halfway there. The Sun keeps turning, so keep following the green dot.' },
+          { p: 0.85, text: 'Almost polar!' }
+        ]
+      },
       view: { span: 16, rate: 8 }
     }
   ];

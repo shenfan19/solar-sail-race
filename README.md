@@ -1,42 +1,49 @@
 # Sail Race
 
-A non-real-time racing game about solar sails. Gravity pulls the sail toward the central body, light pushes it away, and the path between the two decides the score. Pausing and time warp are free, so the race is about the trajectory, not about reflexes.
+A non-real-time racing game about solar sails. Gravity pulls the sail toward the central body, light pushes it away, and the path between the two decides the score. Pausing and slowing down are free, so the race is about the trajectory, not about reflexes.
 
-Status: first prototype, three levels, two interchangeable control schemes.
+Status: first prototype, three missions.
 
-## Levels
+## Missions
 
-| Level | Central light | Goal |
+| Mission | Light | Goal |
 |---|---|---|
 | Warm-up: spiral out to Mars | Sun, radial light, 1 AU start | Reach 1.52 AU |
 | Solar polar orbit | Sun, radial light, 1 AU start | Orbit inclination at least 75 degrees |
 | Earth polar orbit | Sun as external light that turns once a year, Earth shadow | Orbit inclination at least 80 degrees |
 
+Each mission has a briefing, a pilot guide, a three-star rating from the finish time, and a results screen. Runs can be raced against the reference pilot, your own best, or a pasted replay code.
+
 ## Controls
 
-The sail normal is set by two whole-degree angles. Two schemes are available, selected in the page, and more can be added in `js/controls.js`.
+The sail is tilted with a pad: right leans it forward along the orbit, up leans it toward the orbit pole. The green dot on the pad is the guide.
 
-- Pitch / Yaw: Euler angles measured from the light direction. 0 and 0 faces the light.
-- Cone / Clock: cone is the angle between the sail normal and the light, 0 to 85. Clock is the direction the normal leans toward around the light axis, 0 along the orbit, 90 toward the orbit normal.
+| Device | Controls |
+|---|---|
+| Gamepad | Left stick tilt, right stick camera, triggers zoom, A or Start pause, X or D-pad right next view, Y guide, LB RB speed, Select split view, L3 center the pad |
+| Keyboard | Arrows or WASD tilt, C center, Space pause, G guide, 1 to 5 views, V split, F follow, [ ] speed, R restart |
+| Mouse | Drag on the pad to tilt, drag the scene to turn the camera, wheel to zoom |
 
-Arrow keys change the angles, Shift for 5 degrees, Space pauses.
+The 3D view needs no library. Viewpoints: 3D, top, side, orbit plane, from the light.
 
-## Views
+## Control recording schemes
 
-The 3D view needs no library. Layouts of one, two or three views; click a view to select it, drag to rotate, wheel to zoom. Keys 1 to 5 jump the selected view to 3D, top, side, orbit plane or the light side. F follows the sail, V cycles the layout, [ and ] change the speed. Deep link example: `index.html#level=earth-polar&control=cone-clock&layout=one`.
+The pad can drive any control scheme in `js/controls.js`. A scheme only decides how a run is recorded and which two angle numbers are shown. Two schemes exist: Pitch / Yaw Euler angles (default) and Cone / Clock.
 
 ## Replays
 
-Every run is stored as piecewise constant keyframes `{t, a, b}` for the chosen control scheme. A replay code is the base64 of `{v: 2, level, control, keys}`. Scores are computed by re-simulating the replay, never taken from the player.
+Every run is stored as piecewise constant keyframes `{t, a, b}` for the chosen scheme. A replay code is the base64 of `{v: 2, level, control, assist, keys}`. Scores are computed by re-simulating the replay, never taken from the player.
 
 ## Run
 
-Open `index.html` in a browser. No build step.
+Open `index.html` in a browser. No build step. Fonts load from Google Fonts when online and fall back to system fonts.
 
 ```
 node tools/autopilot.js          # generate reference solutions
 node tools/verify.js solutions/earth-polar_euler.json
 ```
+
+Deep links: `index.html#level=earth-polar`, `#screen=settings`, `#autoplay=1` flies the reference solution and shows the results screen.
 
 ## Determinism
 
