@@ -21,6 +21,10 @@ The sail normal is set by two whole-degree angles. Two schemes are available, se
 
 Arrow keys change the angles, Shift for 5 degrees, Space pauses.
 
+## Views
+
+The 3D view needs no library. Layouts of one, two or three views; click a view to select it, drag to rotate, wheel to zoom. Keys 1 to 5 jump the selected view to 3D, top, side, orbit plane or the light side. F follows the sail, V cycles the layout, [ and ] change the speed. Deep link example: `index.html#level=earth-polar&control=cone-clock&layout=one`.
+
 ## Replays
 
 Every run is stored as piecewise constant keyframes `{t, a, b}` for the chosen control scheme. A replay code is the base64 of `{v: 2, level, control, keys}`. Scores are computed by re-simulating the replay, never taken from the player.

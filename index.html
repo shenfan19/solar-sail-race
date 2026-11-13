@@ -18,6 +18,8 @@
   input[type=range] { width:200px; }
   button, select { background:var(--panel); color:var(--text); border:1px solid var(--muted); border-radius:6px; padding:5px 10px; font:inherit; cursor:pointer; }
   button:hover { border-color:var(--accent); }
+  button.on { border-color:var(--accent); background:var(--accent); color:#1b2540; }
+  canvas { cursor:grab; }
   #hud { font-family:ui-monospace, monospace; font-size:13px; }
   #barBox { height:6px; background:var(--panel); border-radius:3px; margin-top:6px; overflow:hidden; }
   #bar { height:100%; width:0; background:var(--good); }
@@ -35,11 +37,17 @@
     <button id="restart">Restart</button>
     <button id="pause">Pause</button>
     <span>Speed
-      <button data-warp="1">1x</button><button data-warp="5">5x</button><button data-warp="20">20x</button><button data-warp="100">100x</button>
+      <button data-speed="0.25">0.25x</button><button data-speed="1">1x</button><button data-speed="4">4x</button><button data-speed="16">16x</button><button data-speed="64">64x</button>
     </span>
   </div>
   <p id="story"></p>
-  <canvas id="view" width="960" height="480"></canvas>
+  <div class="row">
+    <span>Layout
+      <button data-layout="one">1 view</button><button data-layout="two">2 views</button><button data-layout="three">3 views</button>
+    </span>
+    <span>Viewpoint of the selected view <span id="presets"></span> <button id="follow">Follow sail (F)</button></span>
+  </div>
+  <canvas id="view" width="1200" height="640"></canvas>
   <div class="card" style="margin-top:10px">
     <div id="hud"></div>
     <div id="barBox"><div id="bar"></div></div>
@@ -50,7 +58,7 @@
     <span style="color:var(--muted)">Arrow keys: up/down first angle, left/right second angle, Shift for 5&deg;, Space to pause</span>
   </div>
   <p id="ctrlHelp"></p>
-  <p>The red line is the sail normal. The green dashed line shows where you go if you change nothing. Switching the control scheme restarts the level and keeps separate best times.</p>
+  <p>3D views: click a view to select it, drag to rotate, wheel to zoom. Keys 1 to 5 jump the selected view to 3D, top, side, orbit plane or the light side, V cycles the layout, F follows the sail, [ and ] change speed. The red line is the sail normal, the yellow line points to the light. The green dashed line shows where you go if you change nothing. Switching the control scheme restarts the level and keeps separate best times.</p>
   <div class="card">
     <div>Personal best: <b id="best"></b></div>
     <div id="result"></div>
@@ -66,6 +74,7 @@
 <script src="js/trig.js"></script>
 <script src="js/controls.js"></script>
 <script src="js/sim.js"></script>
+<script src="js/view3d.js"></script>
 <script src="js/levels.js"></script>
 <script src="js/solutions.js"></script>
 <script src="js/game.js"></script>

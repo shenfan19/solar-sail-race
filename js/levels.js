@@ -1,5 +1,6 @@
 // Level definitions. All numbers are data; the simulation core contains none.
 // Heliocentric levels: length AU, time day, mu in AU^3/day^2, sail acceleration = beta * mu / r^2 * cos^2(cone).
+// view.rate: simulated time units per real second at speed 1x.
 // Planet levels: length Earth radius, time hour, mu in R^3/h^2, sail acceleration is constant (light is far away).
 (function (root) {
   'use strict';
@@ -18,7 +19,7 @@
       fail: { rMin: 0.2, rMax: 2.5 },
       maxTicks: 20000,
       autopilot: { law: 'spiral', cone: 35 },
-      view: { span: 1.8 }
+      view: { span: 1.8, rate: 4 }
     },
     {
       id: 'sun-polar',
@@ -34,7 +35,7 @@
       fail: { rMin: 0.1, rMax: 2.5 },
       maxTicks: 20000,
       autopilot: { law: 'incline', cone: 35 },
-      view: { span: 1.6 }
+      view: { span: 1.6, rate: 10 }
     },
     {
       id: 'earth-polar',
@@ -54,7 +55,7 @@
       fail: { rMin: 1.2, rMax: 20 },
       maxTicks: 200000,
       autopilot: { law: 'incline', cone: 35 },
-      view: { span: 16 }
+      view: { span: 16, rate: 8 }
     }
   ];
   if (typeof module !== 'undefined' && module.exports) module.exports = levels; else root.SailLevels = levels;

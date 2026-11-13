@@ -1,16 +1,20 @@
-// Browser front end: input, drawing, replay codes, local best times. All physics lives in sim.js,
-// all control mapping lives in controls.js.
+// Browser front end: input, 3D views, replay codes, local best times. All physics lives in sim.js,
+// all control mapping lives in controls.js, all drawing helpers live in view3d.js.
 (function () {
   'use strict';
-  const Sim = window.SailSim, Levels = window.SailLevels, Controls = window.SailControls, Solutions = window.SailSolutions || {};
+  const Sim = window.SailSim, Levels = window.SailLevels, Controls = window.SailControls, V = window.SailView;
+  const Solutions = window.SailSolutions || {};
   const $ = (id) => document.getElementById(id);
   const canvas = $('view'), ctx = canvas.getContext('2d');
 
-  let level, schemeId = Controls.order[0], scheme, state, keys, warp = 5, paused = false;
+  let level, schemeId = Controls.order[0], scheme, state, keys, paused = false;
+  let speed = 1, tickDebt = 0, lastTime = null;
   let ca = 0, cb = 0;
   let trail = [], predicted = [];
   let ghostTrail = [], ghostState = null, ghost = null, ghostCursor = null; // ghost = {level, control, keys}
   const TRAIL_EVERY = 10;
+  let layout = 'three', active = 0;
+  const vps = [V.makeViewport('iso'), V.makeViewport('top'), V.makeViewport('side')];
 
   // ---- storage helpers (storage may be blocked, the game must work without it) ----
   function bestKey() { return 'sailBest:' + level.id + ':' + schemeId; }
@@ -31,10 +35,11 @@
     state = Sim.createState(level, schemeId);
     ca = scheme.a.start; cb = scheme.b.start;
     keys = [{ t: 0, a: ca, b: cb }];
-    trail = []; predicted = [];
+    trail = []; predicted = []; tickDebt = 0;
     paused = false; $('pause').textContent = 'Pause';
     $('story').textContent = level.story;
     if (!keepResult) { $('result').textContent = ''; $('code').value = ''; }
+    vps.forEach((vp) => { vp.zoom = 1; });
     refreshBest();
     resetGhost();
     configureSliders();
@@ -116,64 +121,90 @@
   }
 
   // ---- drawing ----
-  function panel(ox, oy, size, ax, ay, title) {
-    const span = level.view.span, sc = size / (2 * span);
-    const px = (p) => ox + size / 2 + p[ax] * sc;
-    const py = (p) => oy + size / 2 - p[ay] * sc;
-    ctx.save();
-    ctx.beginPath(); ctx.rect(ox, oy, size, size); ctx.clip();
-    ctx.fillStyle = '#0b1020'; ctx.fillRect(ox, oy, size, size);
-    ctx.strokeStyle = '#26324f'; ctx.lineWidth = 1;
-    const ring = level.light === 'central'
-      ? (level.goal.minInc === undefined ? [1, level.goal.rMin] : [1]) : [level.goal.rMin, 7, level.goal.rMax];
-    ring.forEach((r) => { ctx.beginPath(); ctx.arc(ox + size / 2, oy + size / 2, r * sc, 0, 6.2832); ctx.stroke(); });
-    ctx.fillStyle = level.light === 'central' ? '#ffb020' : '#3a7bd5';
-    ctx.beginPath();
-    ctx.arc(ox + size / 2, oy + size / 2, level.light === 'central' ? 7 : level.bodyRadius * sc, 0, 6.2832);
-    ctx.fill();
-    if (level.light === 'external' && ay === 1) { // planet shadow in the plane view that contains the light
-      const w = level.bodyRadius * sc;
-      ctx.fillStyle = 'rgba(0,0,0,0.45)';
-      ctx.save(); ctx.translate(ox + size / 2, oy + size / 2); ctx.rotate(Math.atan2(-state.ly, state.lx));
-      ctx.fillRect(0, -w, span * 2 * sc, 2 * w); ctx.restore();
-    }
-    const line = (pts, color, width, dash) => {
-      if (pts.length < 2) return;
-      ctx.strokeStyle = color; ctx.lineWidth = width; ctx.setLineDash(dash || []);
-      ctx.beginPath(); ctx.moveTo(px(pts[0]), py(pts[0]));
-      for (let i = 1; i < pts.length; i++) ctx.lineTo(px(pts[i]), py(pts[i]));
-      ctx.stroke(); ctx.setLineDash([]);
-    };
-    line(ghostTrail, '#7a8cff', 1.5);
-    line(trail, '#ffaa33', 1.5);
-    line(predicted, '#33cc99', 1, [4, 4]);
+  function orbitNormal(s) {
+    const hx = s.y * s.vz - s.z * s.vy, hy = s.z * s.vx - s.x * s.vz, hz = s.x * s.vy - s.y * s.vx;
+    const n = Math.hypot(hx, hy, hz) || 1;
+    return [hx / n, hy / n, hz / n];
+  }
+  function lightDir(s) {
+    if (level.light === 'external') return [s.lx, s.ly, s.lz];
+    const r = Math.hypot(s.x, s.y, s.z) || 1;
+    return [s.x / r, s.y / r, s.z / r];
+  }
+
+  function drawViewport(vp, index) {
+    const R = vp.rect, span = level.view.span;
     const me = [state.x, state.y, state.z];
-    const nrm = Sim.sailNormal(state, ca, cb, {});
-    ctx.fillStyle = '#ffffff';
-    ctx.beginPath(); ctx.arc(px(me), py(me), 4, 0, 6.2832); ctx.fill();
-    const nv = [nrm.x, nrm.y, nrm.z];
-    ctx.strokeStyle = '#ff5566'; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.moveTo(px(me), py(me));
-    ctx.lineTo(px(me) + nv[ax] * 28, py(me) - nv[ay] * 28); ctx.stroke();
-    if (ghostState) {
-      const g = [ghostState.x, ghostState.y, ghostState.z];
-      ctx.fillStyle = '#7a8cff'; ctx.beginPath(); ctx.arc(px(g), py(g), 3, 0, 6.2832); ctx.fill();
+    const h = orbitNormal(state), l = lightDir(state);
+    V.updateDynamic(vp, h, l);
+    V.prep(vp, span, vp.follow ? me : [0, 0, 0]);
+
+    ctx.save();
+    ctx.beginPath(); ctx.rect(R.x, R.y, R.w, R.h); ctx.clip();
+    ctx.fillStyle = '#0b1020'; ctx.fillRect(R.x, R.y, R.w, R.h);
+
+    // reference plane rings and axes
+    const X = [1, 0, 0], Y = [0, 1, 0], Zv = [0, 0, 1], O = [0, 0, 0];
+    const rings = level.light === 'central'
+      ? (level.goal.minInc === undefined ? [1, level.goal.rMin] : [1]) : [level.goal.rMin, 7, level.goal.rMax];
+    rings.forEach((r) => V.polyline(ctx, vp, V.circlePoints(O, r, X, Y, 96), '#2b3860', 1));
+    const ax = span * 0.5;
+    V.segment(ctx, vp, O, [ax, 0, 0], '#7a3340', 1);
+    V.segment(ctx, vp, O, [0, ax, 0], '#337a45', 1);
+    V.segment(ctx, vp, O, [0, 0, ax], '#33557a', 1);
+
+    // current orbit plane, shows the tilt against the reference plane
+    const rNow = Math.hypot(me[0], me[1], me[2]);
+    if (rNow > 1e-9) {
+      const e1 = [me[0] / rNow, me[1] / rNow, me[2] / rNow], e2 = V.cross(h, e1);
+      V.polyline(ctx, vp, V.circlePoints(O, rNow, e1, e2, 96), 'rgba(80,200,230,0.55)', 1);
     }
-    if (level.light === 'external' && ay === 1) { // sun direction marker
-      ctx.strokeStyle = '#ffb020'; ctx.lineWidth = 3;
-      ctx.beginPath(); ctx.moveTo(ox + 40 - state.lx * 24, oy + 40 + state.ly * 24);
-      ctx.lineTo(ox + 40 + state.lx * 24, oy + 40 - state.ly * 24); ctx.stroke();
-      ctx.fillStyle = '#ffb020'; ctx.font = '11px sans-serif'; ctx.fillText('light', ox + 24, oy + 76);
+
+    // central body and planet shadow
+    if (level.light === 'central') V.disc(ctx, vp, O, span * 0.03, '#ffb020', 5);
+    else {
+      V.disc(ctx, vp, O, level.bodyRadius, '#3a7bd5', 4);
+      const lz = [l[0], l[1], l[2]], p1 = Zv, p2 = V.cross(lz, Zv), len = span * 1.2, b = level.bodyRadius;
+      const c0 = V.circlePoints(O, b, p1, p2, 24), c1 = V.circlePoints(V.add(O, lz, len), b, p1, p2, 24);
+      V.polyline(ctx, vp, c0, 'rgba(160,160,200,0.5)', 1);
+      V.polyline(ctx, vp, c1, 'rgba(160,160,200,0.25)', 1);
+      for (let i = 0; i < 24; i += 6) V.segment(ctx, vp, c0[i], c1[i], 'rgba(160,160,200,0.25)', 1);
     }
-    ctx.fillStyle = '#8ea0c8'; ctx.font = '12px sans-serif'; ctx.fillText(title, ox + 8, oy + size - 8);
+
+    V.polyline(ctx, vp, ghostTrail, '#7a8cff', 1.5);
+    V.polyline(ctx, vp, trail, '#ffaa33', 1.5);
+    V.polyline(ctx, vp, predicted, '#33cc99', 1, [4, 4]);
+    if (ghostState) V.disc(ctx, vp, [ghostState.x, ghostState.y, ghostState.z], span * 0.01, '#7a8cff', 3);
+
+    // the sail: a small square facing along its normal, a red normal arrow and a yellow arrow toward the light
+    const nrm = Sim.sailNormal(state, ca, cb, {}), n = [nrm.x, nrm.y, nrm.z];
+    const ref = Math.abs(n[2]) < 0.9 ? Zv : X;
+    const s1 = V.norm(V.cross(n, ref)), s2 = V.cross(n, s1), q = span * 0.035;
+    const corners = [[1, 1], [1, -1], [-1, -1], [-1, 1], [1, 1]].map((c) => V.add(V.add(me, s1, c[0] * q), s2, c[1] * q));
+    V.polyline(ctx, vp, corners, '#88ccff', 2);
+    V.disc(ctx, vp, me, span * 0.008, '#ffffff', 3);
+    V.segment(ctx, vp, me, V.add(me, n, span * 0.12), '#ff5566', 2);
+    V.segment(ctx, vp, me, V.add(me, l, -span * 0.12), '#ffd34d', 2);
+
+    // label and active frame
+    ctx.fillStyle = '#8ea0c8'; ctx.font = '13px sans-serif';
+    const preset = V.PRESETS.find((p) => p.id === vp.mode);
+    ctx.fillText((preset ? preset.name : 'Free') + (vp.follow ? ', follows the sail' : ''), R.x + 10, R.y + R.h - 10);
     ctx.restore();
+    ctx.strokeStyle = index === active ? '#ffaa33' : '#26324f'; ctx.lineWidth = index === active ? 2 : 1;
+    ctx.strokeRect(R.x + 0.5, R.y + 0.5, R.w - 1, R.h - 1);
+  }
+
+  function layoutViewports() {
+    const rects = V.LAYOUTS[layout], W = canvas.width, H = canvas.height;
+    rects.forEach((r, i) => { vps[i].rect = { x: r[0] * W, y: r[1] * H, w: r[2] * W, h: r[3] * H }; });
+    if (active >= rects.length) active = 0;
   }
 
   function draw() {
-    const h = canvas.height;
-    ctx.clearRect(0, 0, canvas.width, h);
-    panel(0, 0, h, 0, 1, 'top view (x, y), reference plane');
-    panel(h, 0, h, 0, 2, 'side view (x, z)');
+    layoutViewports();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (let i = 0; i < V.LAYOUTS[layout].length; i++) drawViewport(vps[i], i);
     const r = Math.sqrt(state.x * state.x + state.y * state.y + state.z * state.z);
     let goalText, progress;
     if (level.goal.minInc !== undefined) {
@@ -191,11 +222,19 @@
     $('bar').style.width = Math.max(0, Math.min(100, progress * 100)) + '%';
   }
 
-  function frame() {
-    if (!paused) {
-      for (let i = 0; i < warp && !state.done; i++) tickOnce();
-      predict();
+  // Simulation speed is in real time: level.view.rate simulated time units per second at 1x, times the speed button.
+  function frame(now) {
+    if (lastTime === null) lastTime = now;
+    const dtReal = Math.min(0.1, (now - lastTime) / 1000);
+    lastTime = now;
+    if (!paused && !state.done) {
+      tickDebt += dtReal * speed * level.view.rate / level.dt;
+      let n = Math.floor(tickDebt);
+      tickDebt -= n;
+      if (n > 4000) n = 4000;
+      for (let i = 0; i < n && !state.done; i++) tickOnce();
     }
+    predict();
     draw();
     requestAnimationFrame(frame);
   }
@@ -210,15 +249,76 @@
   $('pause').addEventListener('click', () => { if (!state.done) paused = !paused; $('pause').textContent = paused ? 'Resume' : 'Pause'; });
   $('ca').addEventListener('input', (e) => setControl(+e.target.value, cb));
   $('cb').addEventListener('input', (e) => setControl(ca, +e.target.value));
-  document.querySelectorAll('[data-warp]').forEach((b) => b.addEventListener('click', () => { warp = +b.dataset.warp; }));
+
+  function setSpeed(s) {
+    speed = s;
+    document.querySelectorAll('[data-speed]').forEach((b) => b.classList.toggle('on', +b.dataset.speed === s));
+  }
+  document.querySelectorAll('[data-speed]').forEach((b) => b.addEventListener('click', () => setSpeed(+b.dataset.speed)));
+  setSpeed(1);
+
+  function setLayout(name) {
+    layout = name;
+    document.querySelectorAll('[data-layout]').forEach((b) => b.classList.toggle('on', b.dataset.layout === name));
+  }
+  document.querySelectorAll('[data-layout]').forEach((b) => b.addEventListener('click', () => setLayout(b.dataset.layout)));
+  setLayout('three');
+
+  const presetBox = $('presets');
+  V.PRESETS.forEach((p) => {
+    const b = document.createElement('button');
+    b.textContent = p.name + ' (' + p.key + ')'; b.dataset.preset = p.id;
+    b.addEventListener('click', () => V.applyPreset(vps[active], p.id));
+    presetBox.appendChild(b);
+  });
+  $('follow').addEventListener('click', () => { vps[active].follow = !vps[active].follow; });
+
+  // mouse: click selects a viewport, drag rotates it, wheel zooms it
+  function viewportAt(e) {
+    const b = canvas.getBoundingClientRect(), k = canvas.width / b.width;
+    const x = (e.clientX - b.left) * k, y = (e.clientY - b.top) * k;
+    for (let i = 0; i < V.LAYOUTS[layout].length; i++) {
+      const R = vps[i].rect;
+      if (x >= R.x && x < R.x + R.w && y >= R.y && y < R.y + R.h) return i;
+    }
+    return -1;
+  }
+  let drag = null;
+  canvas.addEventListener('mousedown', (e) => {
+    const i = viewportAt(e);
+    if (i < 0) return;
+    active = i; drag = { x: e.clientX, y: e.clientY };
+  });
+  window.addEventListener('mouseup', () => { drag = null; });
+  window.addEventListener('mousemove', (e) => {
+    if (!drag) return;
+    const vp = vps[active];
+    vp.mode = 'free';
+    vp.az -= (e.clientX - drag.x) * 0.5;
+    vp.el = Math.max(-90, Math.min(90, vp.el + (e.clientY - drag.y) * 0.5));
+    drag.x = e.clientX; drag.y = e.clientY;
+  });
+  canvas.addEventListener('wheel', (e) => {
+    const i = viewportAt(e);
+    if (i < 0) return;
+    e.preventDefault();
+    vps[i].zoom = Math.max(0.15, Math.min(40, vps[i].zoom * (e.deltaY < 0 ? 1.15 : 1 / 1.15)));
+  }, { passive: false });
+
   window.addEventListener('keydown', (e) => {
     if (e.target && (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT')) return;
     const step = e.shiftKey ? 5 : 1;
+    const pre = V.PRESETS.find((p) => p.key === e.key);
     if (e.key === 'ArrowUp') setControl(ca + step, cb);
     else if (e.key === 'ArrowDown') setControl(ca - step, cb);
     else if (e.key === 'ArrowLeft') setControl(ca, cb - step);
     else if (e.key === 'ArrowRight') setControl(ca, cb + step);
     else if (e.key === ' ') { $('pause').click(); }
+    else if (pre) V.applyPreset(vps[active], pre.id);
+    else if (e.key === 'v' || e.key === 'V') { const o = ['one', 'two', 'three']; setLayout(o[(o.indexOf(layout) + 1) % 3]); }
+    else if (e.key === 'f' || e.key === 'F') $('follow').click();
+    else if (e.key === '[') setSpeed(Math.max(0.25, speed / 4));
+    else if (e.key === ']') setSpeed(Math.min(64, speed * 4));
     else return;
     e.preventDefault();
   });
@@ -243,6 +343,13 @@
   $('ghostClear').addEventListener('click', () => { ghost = null; startLevel(level.id); });
   $('copy').addEventListener('click', () => { $('code').select(); try { document.execCommand('copy'); } catch (e) { /* ignore */ } });
 
-  startLevel(Levels[0].id);
+  // optional deep link, for example index.html#level=earth-polar&control=cone-clock&layout=one
+  const hash = {};
+  location.hash.replace(/^#/, '').split('&').forEach((kv) => { const p = kv.split('='); if (p[0]) hash[p[0]] = p[1]; });
+  if (hash.control && Controls.registry[hash.control]) { schemeId = hash.control; csel.value = schemeId; }
+  if (hash.layout && V.LAYOUTS[hash.layout]) setLayout(hash.layout);
+  const first = Levels.find((l) => l.id === hash.level) || Levels[0];
+  sel.value = first.id;
+  startLevel(first.id);
   requestAnimationFrame(frame);
 })();
