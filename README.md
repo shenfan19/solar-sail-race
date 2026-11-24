@@ -1,4 +1,6 @@
-# Sail Race
+# Sail Race 谁谓河广
+
+The Chinese name comes from the Book of Songs (詩經), *Wei Feng, He Guang*: 誰謂河廣？一葦杭之. Who says the river is wide? A single reed can cross it.
 
 A non-real-time racing game about solar sails. Gravity pulls the sail toward the central body, light pushes it away, and the path between the two decides the score. Pausing and slowing down are free, so the race is about the trajectory, not about reflexes.
 
