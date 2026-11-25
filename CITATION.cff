@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+message: >-
+  If you use this software, please cite it using the metadata below.
+title: "Sail Race 谁谓河广"
+abstract: >-
+  A non-real-time racing game about solar sails. The player steers a sail
+  between gravity and light pressure to reach target orbits, and every run is
+  scored by deterministic re-simulation of its replay.
+type: software
+version: "0.1.0"
+date-released: "2026-11-25"
+authors:
+  - family-names: Shen
+    given-names: Fan
+license: MIT
+repository-code: "https://github.com/shenfan19/solar-sail-race"
+url: "https://shenfan19.github.io/solar-sail-race/"
+keywords:
+  - solar sail
+  - orbital mechanics
+  - game
+  - deterministic simulation

@@ -61,6 +61,9 @@
   .sheet .btns { display:flex; flex-wrap:wrap; gap:12px; margin-top:16px; }
   .sheet .opt { display:flex; justify-content:space-between; align-items:center; gap:12px; font-size:20px; padding:9px 0; border-bottom:1px solid rgba(42,58,114,0.6); }
   .sheet .opt select { font:inherit; color:var(--text); background:#101a3d; border:2px solid var(--line); border-radius:8px; padding:5px 8px; }
+  .sheet p.about { font-size:clamp(17px, 1.9vw, 21px); line-height:1.35; margin:0 0 12px; }
+  .sheet p.about.small { color:var(--muted); font-size:16px; margin-top:14px; }
+  .sheet a { color:var(--cyan); }
   .sheet table { border-collapse:collapse; font-size:19px; width:100%; }
   .sheet td { padding:6px 8px; border-bottom:1px solid rgba(42,58,114,0.6); } .sheet td:first-child { color:var(--cyan); font-family:var(--display); font-size:15px; white-space:nowrap; }
 
@@ -122,6 +125,7 @@
       <button class="btn" id="btnHelp">How to play</button>
       <button class="btn" id="btnGhostCode">Race a replay code</button>
       <button class="btn" id="btnSettings">Settings</button>
+      <button class="btn" id="btnAbout">About</button>
     </div>
     <div id="pads"></div>
   </div>
@@ -223,6 +227,24 @@
         <tr><td>MOUSE</td><td>Drag on the pad to tilt, drag the scene to turn the camera, wheel to zoom</td></tr>
       </table>
       <div class="btns"><button class="btn primary" id="btnHelpBack">Got it</button></div>
+    </div>
+  </div>
+
+  <!-- about -->
+  <div id="about" class="screen center hidden">
+    <div class="sheet">
+      <h2>About</h2>
+      <div class="lead">Sail Race 谁谓河广, a non-real-time racing game about solar sails.</div>
+      <p class="about">The Chinese name comes from the Book of Songs: 誰謂河廣？一葦杭之. Who says the river is wide? A single reed can cross it.</p>
+      <p class="about">The physics is a deterministic point-mass model: gravity of the central body plus light pressure on an ideal flat sail. Scores come from re-simulating each replay.</p>
+      <table>
+        <tr><td>AUTHOR</td><td>Fan Shen</td></tr>
+        <tr><td>SOURCE</td><td><a href="https://github.com/shenfan19/solar-sail-race" target="_blank" rel="noopener">github.com/shenfan19/solar-sail-race</a></td></tr>
+        <tr><td>LICENSE</td><td>MIT</td></tr>
+        <tr><td>VERSION</td><td>0.1.0</td></tr>
+      </table>
+      <p class="about small">Developed with AI coding assistance for code generation, automated testing, and documentation.</p>
+      <div class="btns"><button class="btn primary" id="btnAboutBack">Back</button></div>
     </div>
   </div>
 </div>

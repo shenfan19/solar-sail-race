@@ -13,7 +13,8 @@
     padSpeed: 0.9,      // pad units per second at full stick or key
     deadzone: 0.18,
     speeds: [0.25, 1, 4, 16, 64],
-    attractTicks: 30,   // ticks per frame for the background demo flight
+    attractSpeed: 4,    // background demo flight plays at this multiple of the level's view rate, like the 4x play speed
+    attractHold: 3,     // seconds the finished demo flight stays on screen before it starts again
     cameraSpin: 0.12,   // degrees per frame for the idle camera
     autoSpeedIndex: 4
   };
@@ -63,11 +64,11 @@
   }
 
   // ---- screens ----
-  const OVERLAYS = { menu: ['menu'], brief: ['brief'], play: ['hud'], pause: ['hud', 'pause'], result: ['result'], settings: ['menu', 'settings'], help: ['menu', 'help'] };
-  const TOP = { menu: 'menu', brief: 'brief', play: 'hud', pause: 'pause', result: 'result', settings: 'settings', help: 'help' };
+  const OVERLAYS = { menu: ['menu'], brief: ['brief'], play: ['hud'], pause: ['hud', 'pause'], result: ['result'], settings: ['menu', 'settings'], help: ['menu', 'help'], about: ['menu', 'about'] };
+  const TOP = { menu: 'menu', brief: 'brief', play: 'hud', pause: 'pause', result: 'result', settings: 'settings', help: 'help', about: 'about' };
   function setScreen(name) {
     screen = name;
-    ['menu', 'brief', 'hud', 'pause', 'result', 'settings', 'help'].forEach((id) => $(id).classList.add('hidden'));
+    ['menu', 'brief', 'hud', 'pause', 'result', 'settings', 'help', 'about'].forEach((id) => $(id).classList.add('hidden'));
     OVERLAYS[name].forEach((id) => $(id).classList.remove('hidden'));
     canvas.style.cursor = name === 'play' || name === 'result' ? 'grab' : 'default';
     if (name !== 'play') { const first = focusables()[0]; if (first) first.focus(); }
@@ -84,7 +85,7 @@
     list[(i + dir + list.length) % list.length].focus();
   }
   function goBack() {
-    if (screen === 'brief' || screen === 'settings' || screen === 'help' || screen === 'result') setScreen('menu');
+    if (screen === 'brief' || screen === 'settings' || screen === 'help' || screen === 'about' || screen === 'result') setScreen('menu');
     else if (screen === 'pause') resume();
     else if (screen === 'play') pause();
   }
@@ -148,15 +149,20 @@
   function attractFor(lv) {
     if (att && att.level === lv) return;
     const ref = (Solutions[lv.id] || {}).euler;
-    att = { level: lv, schemeId: 'euler', state: Sim.createState(lv, 'euler'), keys: ref ? ref.keys : [{ t: 0, a: 0, b: 0 }], cursor: { i: 0 }, trail: [], a: 0, b: 0, wait: 0, predicted: [], ghostState: null, ghostTrail: [] };
+    att = { level: lv, schemeId: 'euler', state: Sim.createState(lv, 'euler'), keys: ref ? ref.keys : [{ t: 0, a: 0, b: 0 }], cursor: { i: 0 }, trail: [], a: 0, b: 0, wait: 0, tickDebt: 0, predicted: [], ghostState: null, ghostTrail: [] };
   }
-  function stepAttract() {
+  // the demo runs on real time, so it flies at the same pace on every screen refresh rate
+  function stepAttract(dt) {
     if (!att) return;
     if (att.state.done) {
-      if (++att.wait > 90) { const lv = att.level; att = null; attractFor(lv); }
+      att.wait += dt;
+      if (att.wait > CFG.attractHold) { const lv = att.level; att = null; attractFor(lv); }
       return;
     }
-    for (let i = 0; i < CFG.attractTicks && !att.state.done; i++) {
+    att.tickDebt += dt * CFG.attractSpeed * att.level.view.rate / att.level.dt;
+    const n = Math.floor(att.tickDebt);
+    att.tickDebt -= n;
+    for (let i = 0; i < n && !att.state.done; i++) {
       const k = Sim.controlAt(att.keys, att.state.tick, att.cursor);
       att.a = k.a; att.b = k.b;
       Sim.step(att.state, k.a, k.b);
@@ -479,7 +485,7 @@
       }
       if (screen === 'play' || screen === 'pause') { predict(); updateHud(); drawPad(); }
     } else {
-      stepAttract();
+      stepAttract(dt);
     }
     draw();
     requestAnimationFrame(frame);
@@ -561,6 +567,8 @@
   $('btnHelpBack').addEventListener('click', () => setScreen('menu'));
   $('btnSettings').addEventListener('click', () => setScreen('settings'));
   $('btnSettingsBack').addEventListener('click', () => setScreen('menu'));
+  $('btnAbout').addEventListener('click', () => setScreen('about'));
+  $('btnAboutBack').addEventListener('click', () => setScreen('menu'));
   $('selScheme').addEventListener('change', (e) => { settings.scheme = e.target.value; saveSettings(); });
   $('btnDefGuide').addEventListener('click', () => { settings.guide = !settings.guide; saveSettings(); $('btnDefGuide').textContent = settings.guide ? 'On' : 'Off'; $('btnDefGuide').classList.toggle('on', settings.guide); });
   $('btnGhostCode').addEventListener('click', () => {
@@ -669,6 +677,7 @@
   if (hashArgs.screen === 'brief' || hashArgs.autoplay) openBrief(startLevelIdx);
   if (hashArgs.screen === 'settings') setScreen('settings');
   if (hashArgs.screen === 'help') setScreen('help');
+  if (hashArgs.screen === 'about') setScreen('about');
   if (hashArgs.autoplay) startRun();
   requestAnimationFrame(frame);
 })();

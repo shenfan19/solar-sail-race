@@ -6,6 +6,8 @@ A non-real-time racing game about solar sails. Gravity pulls the sail toward the
 
 Status: first prototype, three missions.
 
+Play online: https://shenfan19.github.io/solar-sail-race/
+
 ## Missions
 
 | Mission | Light | Goal |
@@ -51,6 +53,14 @@ Deep links: `index.html#level=earth-polar`, `#screen=settings`, `#autoplay=1` fl
 
 `js/sim.js` uses only addition, subtraction, multiplication, division and square root, with the table sine and cosine of `js/trig.js`, so a replay gives the same result in every JavaScript engine.
 
+## Citation
+
+Citation metadata is in `CITATION.cff`.
+
+## Acknowledgments
+
+This project was developed with AI coding assistance for code generation, automated testing, and documentation.
+
 ## License
 
-MIT
+MIT, see `LICENSE`.
