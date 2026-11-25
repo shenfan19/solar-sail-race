@@ -7,7 +7,7 @@ abstract: >-
   between gravity and light pressure to reach target orbits, and every run is
   scored by deterministic re-simulation of its replay.
 type: software
-version: "0.1.0"
+version: "0.2.0"
 date-released: "2026-11-25"
 authors:
   - family-names: Shen

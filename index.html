@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-version="0.2.0">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -47,14 +47,18 @@
 
   /* menu */
   /* the menu scrolls by itself on short screens, so it takes touches instead of passing them to the canvas behind */
-  #menu { display:flex; flex-direction:column; align-items:center; justify-content:flex-start; padding:5vh 4vw calc(2vh + env(safe-area-inset-bottom, 0px)); text-align:center; gap:2vh; overflow-y:auto; pointer-events:auto; touch-action:pan-y; -webkit-overflow-scrolling:touch; }
-  #levels { display:flex; flex-wrap:wrap; gap:14px; justify-content:center; margin-top:1vh; }
+  /* The menu always fits one screen: the footer with the credits stays at the bottom, and if missions ever outgrow
+     the space only the mission list scrolls. Phones get compact two-line mission rows (see the media query below). */
+  #menu { display:flex; flex-direction:column; align-items:center; justify-content:flex-start; padding:5vh 4vw calc(2vh + env(safe-area-inset-bottom, 0px)); text-align:center; gap:2vh; overflow:hidden; pointer-events:auto; touch-action:pan-y; }
+  #menu > * { flex-shrink:0; }
+  #levels { display:flex; flex-wrap:wrap; gap:14px; justify-content:center; align-content:flex-start; margin-top:1vh; flex:0 1 auto !important; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch; width:100%; }
   .card { width:min(290px, 86vw); text-align:left; padding:16px 18px; border-radius:8px; background:var(--panel); border:1px solid var(--line); color:var(--text); cursor:pointer; font-family:var(--body); transition:border-color .1s, transform .1s; }
   .card:hover, .card:focus-visible { outline:none; transform:translateY(-2px); border-color:var(--accent); }
   .card .num { font-family:var(--mono); font-size:12px; color:var(--muted); letter-spacing:0.12em; text-transform:uppercase; }
   .card .name { font-weight:600; font-size:19px; margin:6px 0 8px; line-height:1.25; }
   .card .goal { font-size:15px; color:var(--muted); min-height:42px; line-height:1.35; }
-  .card .row { display:flex; justify-content:space-between; align-items:center; margin-top:12px; font-size:15px; }
+  .card .row { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:12px; font-size:14px; }
+  .card .best { flex:1; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .tag { font-size:12px; letter-spacing:0.04em; padding:2px 8px; border-radius:4px; border:1px solid currentColor; }
   .tag.Easy { color:var(--green); } .tag.Medium { color:var(--sun); } .tag.Hard { color:var(--pink); }
   .stars { font-size:18px; letter-spacing:3px; color:var(--faint); }
@@ -123,6 +127,22 @@
   #speedLabel { font-family:var(--mono); font-size:16px; min-width:52px; text-align:center; }
   #keyhints { position:absolute; left:0; right:0; bottom:0; padding:8px 18px; font-size:14px; color:var(--muted); background:linear-gradient(0deg, rgba(6,8,13,0.85), transparent); text-align:center; }
   kbd { font-family:var(--mono); font-size:12px; border:1px solid var(--line); border-radius:4px; padding:1px 6px; color:var(--text); background:#141a26; margin:0 4px 0 12px; }
+  @media (max-width: 600px), (max-height: 620px) {
+    #menu { padding:3vh 14px calc(10px + env(safe-area-inset-bottom, 0px)); gap:12px; }
+    .title { font-size:28px; } .subtitle { font-size:13px; margin-top:2px; }
+    .lead-home { font-size:14px; line-height:1.45; margin-top:8px; }
+    .feats { font-size:12px; gap:4px 14px; margin-top:8px; }
+    #levels { gap:8px; margin-top:0; }
+    .card { width:100%; max-width:420px; padding:9px 12px; border-radius:6px; }
+    .card:hover, .card:focus-visible { transform:none; }
+    .card .num { display:inline; font-size:11px; margin-right:8px; }
+    .card .name { display:inline; font-size:15px; margin:0; }
+    .card .goal { display:none; }
+    .card .row { margin-top:5px; font-size:12px; } .card .stars { font-size:14px; letter-spacing:2px; } .tag { font-size:11px; padding:1px 6px; }
+    #menuBtns { display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; width:100%; max-width:420px; } #menuBtns .btn { padding:7px 6px; font-size:13px; line-height:1.25; }
+    #menuFoot { gap:4px; font-size:12px; } #pads { display:none; } select.lang { font-size:12px; }
+  }
+  @media (max-width: 600px) and (max-height: 600px) { .feats { display:none; } }
   @media (max-width: 760px) { #hudViews { top:auto; bottom:210px; } #coach { width:92vw; bottom:210px; } #keyhints { display:none; } #padBox { bottom:14px; } #hudBtns { bottom:14px; } }
 </style>
 </head>
@@ -150,6 +170,7 @@
         <span data-i18n="menu.by"></span>
         <a href="https://github.com/shenfan19/solar-sail-race" target="_blank" rel="noopener" data-i18n="menu.source"></a>
         <button class="link" id="btnAbout" data-i18n="menu.about"></button>
+        <span class="ver-tag">v<span class="ver"></span></span>
         <select class="lang" id="selLangHome" aria-label="Language"></select>
       </div>
     </div>
@@ -267,7 +288,7 @@
         <tr><td data-i18n="about.author"></td><td data-i18n="about.authorName"></td></tr>
         <tr><td data-i18n="about.source"></td><td><a href="https://github.com/shenfan19/solar-sail-race" target="_blank" rel="noopener">github.com/shenfan19/solar-sail-race</a></td></tr>
         <tr><td data-i18n="about.license"></td><td>MIT</td></tr>
-        <tr><td data-i18n="about.version"></td><td>0.1.0</td></tr>
+        <tr><td data-i18n="about.version"></td><td class="ver"></td></tr>
       </table>
       <p class="small" data-i18n="about.ai"></p>
       <div class="btns"><button class="btn primary" id="btnAboutBack" data-i18n="back"></button></div>

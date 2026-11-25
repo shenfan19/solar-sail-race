@@ -126,8 +126,8 @@
       b.innerHTML = '<div class="num">' + t('menu.mission', { n: i + 1 }) + '</div><div class="name">' + lvText(lv, 'name') + '</div>' +
         '<div class="goal">' + lvText(lv, 'goal') + '</div>' +
         '<div class="row"><span class="tag ' + lv.difficulty + '">' + t('diff.' + lv.difficulty) + '</span>' +
-        '<span class="stars">' + starString(best ? best.stars : 0) + '</span></div>' +
-        '<div class="row" style="margin-top:6px;color:var(--muted)">' + (best ? t('menu.best', { t: best.time.toFixed(1), unit: unitT(lv) }) : t('menu.notFlown')) + '</div>';
+        '<span class="best">' + (best ? t('menu.best', { t: best.time.toFixed(1), unit: unitT(lv) }) : t('menu.notFlown')) + '</span>' +
+        '<span class="stars">' + starString(best ? best.stars : 0) + '</span></div>';
     });
     $('pads').textContent = t(gamepadName ? 'menu.padOn' : 'menu.padOff');
   }
@@ -701,6 +701,8 @@
   resize();
 
   // ---- start ----
+  // the version is written once, on the html element, and shown in the footer and the About page
+  document.querySelectorAll('.ver').forEach((el) => { el.textContent = document.documentElement.dataset.version; });
   L.setLang(hashArgs.lang || L.detect(), false);
   relabel();
   const startLevelIdx = Math.max(0, Levels.findIndex((l) => l.id === hashArgs.level));
