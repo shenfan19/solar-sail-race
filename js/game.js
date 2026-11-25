@@ -5,6 +5,23 @@
   const Sim = window.SailSim, Levels = window.SailLevels, Controls = window.SailControls, Guide = window.SailGuide, V = window.SailView;
   const Solutions = window.SailSolutions || {};
   const $ = (id) => document.getElementById(id);
+  const L = window.SailI18n, t = L.t;
+
+  // Canvas colors come from the --c-* custom properties in index.html, so the page and the drawing share one palette.
+  const COL = {};
+  (function readPalette() {
+    const cs = getComputedStyle(document.documentElement);
+    ['star', 'ring', 'goal', 'orbit', 'node', 'axis-x', 'axis-y', 'axis-z', 'sun', 'earth', 'shadow', 'ghost', 'trail', 'predict', 'sail', 'craft', 'normal', 'light', 'guide', 'pad']
+      .forEach((k) => { COL[k] = cs.getPropertyValue('--c-' + k).trim() || '#888888'; });
+    COL.accent = cs.getPropertyValue('--accent').trim(); COL.sunUi = cs.getPropertyValue('--sun').trim(); COL.line = cs.getPropertyValue('--line').trim(); COL.muted = cs.getPropertyValue('--muted').trim();
+  })();
+  function alpha(hex, a) {
+    const h = hex.replace('#', ''), n = parseInt(h.length === 3 ? h.split('').map((c) => c + c).join('') : h, 16);
+    return 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')';
+  }
+  const lvText = (lv, k) => t('lv.' + lv.id + '.' + k);
+  const unitT = (lv) => t('unit.' + lv.timeScaleLabel);
+  const onOff = (v) => t(v ? 'on' : 'off');
 
   // interface settings, none of these touch the physics
   const CFG = {
@@ -106,13 +123,13 @@
   function refreshMenu() {
     Array.prototype.forEach.call($('levels').children, (b, i) => {
       const lv = Levels[i], best = loadBest(lv.id);
-      b.innerHTML = '<div class="num">MISSION ' + (i + 1) + '</div><div class="name">' + lv.name + '</div>' +
-        '<div class="goal">' + lv.brief.goal + '</div>' +
-        '<div class="row"><span class="tag ' + lv.difficulty + '">' + lv.difficulty + '</span>' +
+      b.innerHTML = '<div class="num">' + t('menu.mission', { n: i + 1 }) + '</div><div class="name">' + lvText(lv, 'name') + '</div>' +
+        '<div class="goal">' + lvText(lv, 'goal') + '</div>' +
+        '<div class="row"><span class="tag ' + lv.difficulty + '">' + t('diff.' + lv.difficulty) + '</span>' +
         '<span class="stars">' + starString(best ? best.stars : 0) + '</span></div>' +
-        '<div class="row" style="margin-top:6px;color:var(--muted)">' + (best ? 'Best ' + best.time.toFixed(1) + ' ' + lv.timeScaleLabel : 'Not flown yet') + '</div>';
+        '<div class="row" style="margin-top:6px;color:var(--muted)">' + (best ? t('menu.best', { t: best.time.toFixed(1), unit: unitT(lv) }) : t('menu.notFlown')) + '</div>';
     });
-    $('pads').textContent = gamepadName ? 'Gamepad connected. D-pad or stick to move, A to select.' : 'Keyboard, mouse or a gamepad all work.';
+    $('pads').textContent = t(gamepadName ? 'menu.padOn' : 'menu.padOff');
   }
 
   // ---- briefing ----
@@ -121,27 +138,30 @@
     attractFor(level);
     briefGuide = settings.guide;
     ghostPick = { mode: 'off' };
-    $('briefNum').textContent = 'MISSION ' + (i + 1) + '  ·  ' + level.difficulty.toUpperCase();
-    $('briefName').textContent = level.name;
-    $('briefGoal').textContent = level.brief.goal;
-    $('briefSteps').innerHTML = level.brief.steps.map((t) => '<li>' + t + '</li>').join('');
+    fillBrief();
     refreshBriefButtons();
     setScreen('brief');
     $('btnLaunch').focus();
   }
+  function fillBrief() {
+    $('briefNum').textContent = t('menu.mission', { n: levelIdx + 1 }) + '  ·  ' + t('diff.' + level.difficulty);
+    $('briefName').textContent = lvText(level, 'name');
+    $('briefGoal').textContent = lvText(level, 'goal');
+    $('briefSteps').innerHTML = lvText(level, 'steps').map((x) => '<li>' + x + '</li>').join('');
+  }
   function ghostOptions() {
-    const opts = [{ mode: 'off', label: 'Off' }];
+    const opts = [{ mode: 'off', label: t('ghost.off') }];
     const ref = (Solutions[level.id] || {})[settings.scheme];
-    if (ref) opts.push({ mode: 'ref', label: 'Reference pilot', keys: ref.keys, control: settings.scheme });
+    if (ref) opts.push({ mode: 'ref', label: t('ghost.ref'), keys: ref.keys, control: settings.scheme });
     const best = loadBest(level.id);
-    if (best && best.code) { try { const d = decodeReplay(best.code); opts.push({ mode: 'best', label: 'My best', keys: d.keys, control: d.control }); } catch (e) { /* ignore */ } }
-    if (pastedReplay && pastedReplay.level === level.id) opts.push({ mode: 'code', label: 'Pasted replay', keys: pastedReplay.keys, control: pastedReplay.control });
+    if (best && best.code) { try { const d = decodeReplay(best.code); opts.push({ mode: 'best', label: t('ghost.best'), keys: d.keys, control: d.control }); } catch (e) { /* ignore */ } }
+    if (pastedReplay && pastedReplay.level === level.id) opts.push({ mode: 'code', label: t('ghost.code'), keys: pastedReplay.keys, control: pastedReplay.control });
     return opts;
   }
   function refreshBriefButtons() {
-    $('btnBriefGuide').textContent = briefGuide ? 'On' : 'Off';
+    $('btnBriefGuide').textContent = onOff(briefGuide);
     $('btnBriefGuide').classList.toggle('on', briefGuide);
-    const sel = ghostOptions().find((o) => o.mode === ghostPick.mode) || { label: 'Off' };
+    const sel = ghostOptions().find((o) => o.mode === ghostPick.mode) || { label: t('ghost.off') };
     $('btnBriefGhost').textContent = sel.label;
   }
 
@@ -258,26 +278,26 @@
       record = true;
       lsSet(bestKey(lv.id), JSON.stringify({ time: time, keys: S.keys.length, stars: stars, assisted: S.assisted, code: encodeReplay(S) }));
     }
-    const m = lv.medals, unit = lv.timeScaleLabel;
-    $('resultTitle').textContent = ok ? 'MISSION COMPLETE' : st.done === 'fail' ? 'SAIL LOST' : 'OUT OF TIME';
+    const m = lv.medals, unit = unitT(lv);
+    $('resultTitle').textContent = t(ok ? 'res.ok' : st.done === 'fail' ? 'res.fail' : 'res.time');
     $('resultTitle').className = ok ? 'ok' : 'bad';
     $('medals').innerHTML = ok ? starString(stars) : '';
     $('resultTime').textContent = time.toFixed(1);
     $('resultUnit').textContent = unit;
-    $('resultBanner').innerHTML = record ? '<span class="banner">NEW RECORD</span>' : '';
+    $('resultBanner').innerHTML = record ? '<span class="banner">' + t('res.record') + '</span>' : '';
     let msg;
-    if (!ok) msg = st.done === 'fail' ? 'The sail drifted out of the safe range. Try a gentler lean and watch the green guide.' : 'The clock ran out before the goal.';
-    else if (stars === 3) msg = 'Gold pace. Hard to beat.';
-    else if (stars === 2) msg = 'Silver. Gold needs ' + m.gold + ' ' + unit + ' or less.';
-    else if (stars === 1) msg = 'Bronze. Silver needs ' + m.silver + ' ' + unit + ' or less.';
-    else msg = 'Goal reached. Bronze needs ' + m.bronze + ' ' + unit + ' or less.';
+    if (!ok) msg = t(st.done === 'fail' ? 'res.msgFail' : 'res.msgTime');
+    else if (stars === 3) msg = t('res.msg3');
+    else if (stars === 2) msg = t('res.msg2', { n: m.gold, unit: unit });
+    else if (stars === 1) msg = t('res.msg1', { n: m.silver, unit: unit });
+    else msg = t('res.msg0', { n: m.bronze, unit: unit });
     $('resultMsg').textContent = msg;
     const stat = (k, v) => '<div class="stat"><div class="k">' + k + '</div><div class="v">' + v + '</div></div>';
     $('resultStats').innerHTML =
-      stat('Adjustments', S.keys.length) +
-      stat('Closest', S.rMin === Infinity ? '-' : S.rMin.toFixed(2) + ' ' + lv.unitLen) +
-      stat('Farthest', S.rMax.toFixed(2) + ' ' + lv.unitLen) +
-      stat('Guide', S.assisted ? 'Used' : 'None');
+      stat(t('res.adjust'), S.keys.length) +
+      stat(t('res.closest'), S.rMin === Infinity ? '-' : S.rMin.toFixed(2) + ' ' + lv.unitLen) +
+      stat(t('res.farthest'), S.rMax.toFixed(2) + ' ' + lv.unitLen) +
+      stat(t('res.guide'), t(S.assisted ? 'res.used' : 'res.none'));
     $('btnNext').classList.toggle('hidden', !(ok && levelIdx + 1 < Levels.length));
     $('btnCopy').classList.toggle('hidden', !ok);
     vps[0].mode = 'free';
@@ -291,31 +311,29 @@
     const st = S.state, lv = S.level;
     if (lv.goal.minInc !== undefined) {
       const inc = Sim.inclinationDeg(st), shown = inc > 90 ? 180 - inc : inc;
-      return { p: shown / lv.goal.minInc, text: 'Orbit tilt', val: shown.toFixed(0) + '° / ' + lv.goal.minInc + '°' };
+      return { p: shown / lv.goal.minInc, text: t('hud.tilt'), val: shown.toFixed(0) + '° / ' + lv.goal.minInc + '°' };
     }
     const r = Math.sqrt(st.x * st.x + st.y * st.y + st.z * st.z);
-    return { p: (r - 1) / (lv.goal.rMin - 1), text: 'Distance from the Sun', val: r.toFixed(2) + ' / ' + lv.goal.rMin + ' ' + lv.unitLen };
+    return { p: (r - 1) / (lv.goal.rMin - 1), text: t('hud.distSun'), val: r.toFixed(2) + ' / ' + lv.goal.rMin + ' ' + lv.unitLen };
   }
   function coachText(p) {
-    const h = S.level.hints;
-    if (!S.touched && !S.autoplay) return h.first;
-    let t = '';
-    h.steps.forEach((s) => { if (p >= s.p) t = s.text; });
-    return t;
+    if (!S.touched && !S.autoplay) return t('hint.first');
+    const texts = lvText(S.level, 'hints');
+    let out = '';
+    S.level.hintAt.forEach((at, i) => { if (p >= at) out = texts[i] || ''; });
+    return out;
   }
   function updateHud() {
     const st = S.state, lv = S.level, pr = progressNow();
-    $('timer').innerHTML = (st.tick * lv.dt).toFixed(1) + '<small>' + lv.timeScaleLabel + '</small>';
+    $('timer').innerHTML = (st.tick * lv.dt).toFixed(1) + '<small>' + unitT(lv) + '</small>';
     $('goalText').textContent = pr.text; $('goalVal').textContent = pr.val;
     $('goalBar').firstElementChild.style.width = Math.max(0, Math.min(100, pr.p * 100)) + '%';
     $('coach').textContent = coachText(pr.p);
     $('padBox').classList.toggle('nudge', !S.touched && !S.autoplay);
-    $('angles').textContent = S.scheme.a.label + ' ' + S.a + '°   ' + S.scheme.b.label + ' ' + S.b + '°';
+    $('angles').textContent = t('scheme.' + S.schemeId + '.a') + ' ' + S.a + '°   ' + t('scheme.' + S.schemeId + '.b') + ' ' + S.b + '°';
     $('speedLabel').textContent = CFG.speeds[S.speedIdx] + 'x';
-    $('btnPause').textContent = S.paused ? 'Resume' : 'Pause';
-    $('keyhints').innerHTML = lastDevice === 'pad'
-      ? '<kbd>L stick</kbd>tilt<kbd>R stick</kbd>camera<kbd>A</kbd>pause<kbd>X</kbd>view<kbd>Y</kbd>guide<kbd>LB RB</kbd>speed'
-      : '<kbd>Arrows</kbd>tilt<kbd>Space</kbd>pause<kbd>G</kbd>guide<kbd>1 to 5</kbd>views<kbd>[ ]</kbd>speed<kbd>R</kbd>restart';
+    $('btnPause').textContent = t(S.paused ? 'hud.resume' : 'hud.pause');
+    $('keyhints').innerHTML = t(lastDevice === 'pad' ? 'keys.pad' : 'keys.kb');
   }
   function refreshHudButtons() {
     $('btnGuide').classList.toggle('on', S.guide);
@@ -328,25 +346,25 @@
   function drawPad() {
     const w = padCanvas.width, c = w / 2, R = c - 14;
     pctx.clearRect(0, 0, w, w);
-    pctx.strokeStyle = 'rgba(147,163,212,0.35)'; pctx.lineWidth = 2;
+    pctx.strokeStyle = alpha(COL.pad, 0.35); pctx.lineWidth = 2;
     pctx.beginPath(); pctx.arc(c, c, R, 0, 6.2832); pctx.stroke();
     pctx.beginPath(); pctx.moveTo(c - R, c); pctx.lineTo(c + R, c); pctx.moveTo(c, c - R); pctx.lineTo(c, c + R); pctx.stroke();
-    pctx.fillStyle = 'rgba(147,163,212,0.8)'; pctx.font = '600 22px sans-serif'; pctx.textAlign = 'center';
-    pctx.fillText('forward', c + R - 40, c - 8); pctx.fillText('pole', c + 26, c - R + 26);
+    pctx.fillStyle = alpha(COL.pad, 0.8); pctx.font = '500 22px "IBM Plex Sans", system-ui, sans-serif'; pctx.textAlign = 'center';
+    pctx.fillText(t('hud.forward'), c + R - 44, c - 10); pctx.fillText(t('hud.pole'), c + 30, c - R + 28);
     let gp = null;
     if (S.guide) {
       const wn = Guide.wanted(S.state, S.level.autopilot);
       gp = Guide.localToPad(wn[0], wn[1], CFG.padCone);
-      pctx.strokeStyle = 'rgba(76,255,154,0.35)'; pctx.setLineDash([6, 6]);
+      pctx.strokeStyle = alpha(COL.guide, 0.35); pctx.setLineDash([6, 6]);
       pctx.beginPath(); pctx.arc(c, c, Math.hypot(gp[0], gp[1]) * R, 0, 6.2832); pctx.stroke(); pctx.setLineDash([]);
-      const pulse = 1 + 0.25 * Math.sin(performance.now() / 180);
-      pctx.fillStyle = '#4cff9a'; pctx.shadowColor = '#4cff9a'; pctx.shadowBlur = 18;
-      pctx.beginPath(); pctx.arc(c + gp[0] * R, c - gp[1] * R, 14 * pulse, 0, 6.2832); pctx.fill(); pctx.shadowBlur = 0;
+      const pulse = 1 + 0.12 * Math.sin(performance.now() / 260);
+      pctx.fillStyle = COL.guide;
+      pctx.beginPath(); pctx.arc(c + gp[0] * R, c - gp[1] * R, 13 * pulse, 0, 6.2832); pctx.fill();
     }
     const q = CFG.padStep, px = Math.round(S.padX / q) * q, py = Math.round(S.padY / q) * q;
-    if (gp) { pctx.strokeStyle = 'rgba(255,255,255,0.35)'; pctx.lineWidth = 2; pctx.beginPath(); pctx.moveTo(c + px * R, c - py * R); pctx.lineTo(c + gp[0] * R, c - gp[1] * R); pctx.stroke(); }
-    pctx.fillStyle = '#ffffff'; pctx.shadowColor = '#3ee0ff'; pctx.shadowBlur = 14;
-    pctx.beginPath(); pctx.arc(c + px * R, c - py * R, 12, 0, 6.2832); pctx.fill(); pctx.shadowBlur = 0;
+    if (gp) { pctx.strokeStyle = alpha(COL.craft, 0.3); pctx.lineWidth = 2; pctx.beginPath(); pctx.moveTo(c + px * R, c - py * R); pctx.lineTo(c + gp[0] * R, c - gp[1] * R); pctx.stroke(); }
+    pctx.fillStyle = COL.craft; pctx.strokeStyle = COL.accent; pctx.lineWidth = 3;
+    pctx.beginPath(); pctx.arc(c + px * R, c - py * R, 11, 0, 6.2832); pctx.fill(); pctx.stroke();
   }
   function padFromPointer(e) {
     const b = padCanvas.getBoundingClientRect();
@@ -386,17 +404,17 @@
 
     const X = [1, 0, 0], Y = [0, 1, 0], Zv = [0, 0, 1], O = [0, 0, 0];
     const rings = lv.light === 'central' ? (lv.goal.minInc === undefined ? [1, lv.goal.rMin] : [1]) : [lv.goal.rMin, 7, lv.goal.rMax];
-    rings.forEach((r, i) => V.polyline(ctx, vp, V.circlePoints(O, r, X, Y, 96), (lv.goal.minInc === undefined && i === 1) ? 'rgba(255,79,163,0.8)' : '#2f4086', (lv.goal.minInc === undefined && i === 1) ? 2.5 : 1));
+    rings.forEach((r, i) => V.polyline(ctx, vp, V.circlePoints(O, r, X, Y, 96), (lv.goal.minInc === undefined && i === 1) ? alpha(COL.goal, 0.8) : COL.ring, (lv.goal.minInc === undefined && i === 1) ? 2 : 1));
     const ax = span * 0.5;
-    V.segment(ctx, vp, O, [ax, 0, 0], '#7a3340', 1); V.segment(ctx, vp, O, [0, ax, 0], '#337a45', 1); V.segment(ctx, vp, O, [0, 0, ax], '#33557a', 1);
+    V.segment(ctx, vp, O, [ax, 0, 0], COL['axis-x'], 1); V.segment(ctx, vp, O, [0, ax, 0], COL['axis-y'], 1); V.segment(ctx, vp, O, [0, 0, ax], COL['axis-z'], 1);
 
     const rNow = Math.hypot(me[0], me[1], me[2]);
     if (rNow > 1e-9) {
       const e1 = [me[0] / rNow, me[1] / rNow, me[2] / rNow], e2 = V.cross(h, e1);
-      V.polyline(ctx, vp, V.circlePoints(O, rNow, e1, e2, 96), 'rgba(62,224,255,0.55)', 1.5);
+      V.polyline(ctx, vp, V.circlePoints(O, rNow, e1, e2, 96), alpha(COL.orbit, 0.5), 1.5);
       if (opts.guide && lv.autopilot.law === 'incline') {
         const nd = Guide.nodeDirection(st), k = rNow * 1.2;
-        V.segment(ctx, vp, [-nd[0] * k, -nd[1] * k, 0], [nd[0] * k, nd[1] * k, 0], '#ff4fa3', 2.5);
+        V.segment(ctx, vp, [-nd[0] * k, -nd[1] * k, 0], [nd[0] * k, nd[1] * k, 0], COL.node, 2);
       }
     }
 
@@ -404,41 +422,41 @@
     const c0 = V.project(vp, O);
     if (lv.light === 'central') {
       if (c0) {
-        const g = ctx.createRadialGradient(c0[0], c0[1], 2, c0[0], c0[1], 60 * c0[2]);
-        g.addColorStop(0, 'rgba(255,200,80,0.9)'); g.addColorStop(1, 'rgba(255,140,40,0)');
+        const g = ctx.createRadialGradient(c0[0], c0[1], 2, c0[0], c0[1], 44 * c0[2]);
+        g.addColorStop(0, alpha(COL.sun, 0.55)); g.addColorStop(1, alpha(COL.sun, 0));
         ctx.fillStyle = g; ctx.beginPath(); ctx.arc(c0[0], c0[1], 60 * c0[2], 0, 6.2832); ctx.fill();
       }
-      V.disc(ctx, vp, O, span * 0.03, '#ffd060', 6);
+      V.disc(ctx, vp, O, span * 0.03, COL.sun, 6);
     } else {
-      V.disc(ctx, vp, O, lv.bodyRadius, '#3a7bd5', 5);
+      V.disc(ctx, vp, O, lv.bodyRadius, COL.earth, 5);
       const p2 = V.cross(l, Zv), len = span * 1.2, b = lv.bodyRadius;
       const a0 = V.circlePoints(O, b, Zv, p2, 24), a1 = V.circlePoints(V.add(O, l, len), b, Zv, p2, 24);
-      V.polyline(ctx, vp, a0, 'rgba(160,160,200,0.5)', 1); V.polyline(ctx, vp, a1, 'rgba(160,160,200,0.25)', 1);
-      for (let i = 0; i < 24; i += 6) V.segment(ctx, vp, a0[i], a1[i], 'rgba(160,160,200,0.25)', 1);
+      V.polyline(ctx, vp, a0, alpha(COL.shadow, 0.45), 1); V.polyline(ctx, vp, a1, alpha(COL.shadow, 0.2), 1);
+      for (let i = 0; i < 24; i += 6) V.segment(ctx, vp, a0[i], a1[i], alpha(COL.shadow, 0.2), 1);
     }
 
-    V.polyline(ctx, vp, sc.ghostTrail || [], '#8a9bff', 2);
-    V.polyline(ctx, vp, sc.trail, '#ffaa33', 2.5);
-    if (opts.predict) V.polyline(ctx, vp, sc.predicted, 'rgba(76,255,154,0.8)', 1.5, [5, 5]);
-    if (sc.ghostState) V.disc(ctx, vp, [sc.ghostState.x, sc.ghostState.y, sc.ghostState.z], span * 0.012, '#8a9bff', 4);
+    V.polyline(ctx, vp, sc.ghostTrail || [], COL.ghost, 1.5);
+    V.polyline(ctx, vp, sc.trail, COL.trail, 2);
+    if (opts.predict) V.polyline(ctx, vp, sc.predicted, alpha(COL.predict, 0.75), 1.5, [5, 5]);
+    if (sc.ghostState) V.disc(ctx, vp, [sc.ghostState.x, sc.ghostState.y, sc.ghostState.z], span * 0.012, COL.ghost, 4);
 
     // the sail
     const nrm = Sim.sailNormal(st, sc.a, sc.b, {}), n = [nrm.x, nrm.y, nrm.z];
     const ref = Math.abs(n[2]) < 0.9 ? Zv : X, s1 = V.norm(V.cross(n, ref)), s2 = V.cross(n, s1), q = span * 0.045;
     const corners = [[1, 1], [1, -1], [-1, -1], [-1, 1]].map((c) => V.add(V.add(me, s1, c[0] * q), s2, c[1] * q));
-    fillPoly(vp, corners, 'rgba(136,204,255,0.55)');
-    V.polyline(ctx, vp, corners.concat([corners[0]]), '#bfe6ff', 2);
-    V.disc(ctx, vp, me, span * 0.009, '#ffffff', 3);
-    V.segment(ctx, vp, me, V.add(me, n, span * 0.13), '#ff5566', 3);
-    V.segment(ctx, vp, me, V.add(me, l, -span * 0.13), '#ffd34d', 2);
+    fillPoly(vp, corners, alpha(COL.sail, 0.45));
+    V.polyline(ctx, vp, corners.concat([corners[0]]), COL.sail, 1.5);
+    V.disc(ctx, vp, me, span * 0.009, COL.craft, 3);
+    V.segment(ctx, vp, me, V.add(me, n, span * 0.13), COL.normal, 2.5);
+    V.segment(ctx, vp, me, V.add(me, l, -span * 0.13), COL.light, 2);
 
     if (opts.split) {
-      ctx.fillStyle = '#93a3d4'; ctx.font = '600 15px Rajdhani, sans-serif';
+      ctx.fillStyle = COL.muted; ctx.font = '500 14px "IBM Plex Sans", system-ui, sans-serif';
       const p = V.PRESETS.find((pp) => pp.id === vp.mode);
-      ctx.fillText((p ? p.name : 'Free') + (vp.follow ? ', following' : ''), R.x + 12, R.y + R.h - 12);
+      ctx.fillText(t(p ? 'view.' + p.id : 'view.free') + (vp.follow ? t('view.following') : ''), R.x + 12, R.y + R.h - 12);
     }
     ctx.restore();
-    if (opts.split) { ctx.strokeStyle = idx === active ? '#ffb020' : '#2a3a72'; ctx.lineWidth = idx === active ? 2 : 1; ctx.strokeRect(R.x + 0.5, R.y + 0.5, R.w - 1, R.h - 1); }
+    if (opts.split) { ctx.strokeStyle = idx === active ? COL.sunUi : COL.line; ctx.lineWidth = idx === active ? 2 : 1; ctx.strokeRect(R.x + 0.5, R.y + 0.5, R.w - 1, R.h - 1); }
   }
 
   function drawScene(sc, layoutName, opts) {
@@ -450,8 +468,8 @@
 
   function draw() {
     ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = '#9fb4ff';
-    stars.forEach((s) => { ctx.globalAlpha = 0.25 + s[2] * 0.3; ctx.fillRect(s[0] * W, s[1] * H, s[2], s[2]); });
+    ctx.fillStyle = COL.star;
+    stars.forEach((s) => { ctx.globalAlpha = 0.18 + s[2] * 0.22; ctx.fillRect(s[0] * W, s[1] * H, s[2], s[2]); });
     ctx.globalAlpha = 1;
     if (screen === 'play' || screen === 'pause') {
       drawScene(S, layout, { guide: S.guide, predict: true });
@@ -554,14 +572,27 @@
   buildMenu();
   V.PRESETS.forEach((p) => {
     const b = document.createElement('button');
-    b.className = 'btn small'; b.textContent = p.name; b.dataset.preset = p.id; b.title = 'Key ' + p.key;
+    b.className = 'btn small'; b.dataset.preset = p.id;
     b.addEventListener('click', () => { V.applyPreset(vps[active], p.id); refreshHudButtons(); });
     $('presets').appendChild(b);
   });
-  Controls.order.forEach((id) => { const o = document.createElement('option'); o.value = id; o.textContent = Controls.registry[id].name; $('selScheme').appendChild(o); });
+  Controls.order.forEach((id) => { const o = document.createElement('option'); o.value = id; $('selScheme').appendChild(o); });
   $('selScheme').value = settings.scheme;
-  $('btnDefGuide').textContent = settings.guide ? 'On' : 'Off';
   $('btnDefGuide').classList.toggle('on', settings.guide);
+  ['selLang', 'selLangHome'].forEach((id) => {
+    L.order.forEach((code) => { const o = document.createElement('option'); o.value = code; o.textContent = L.names[code]; $(id).appendChild(o); });
+    $(id).addEventListener('change', (e) => { L.setLang(e.target.value, true); relabel(); });
+  });
+
+  // texts built in code, refreshed whenever the language changes
+  function relabel() {
+    $('selLang').value = L.lang; $('selLangHome').value = L.lang;
+    Array.prototype.forEach.call($('presets').children, (b) => { const p = V.PRESETS.find((q) => q.id === b.dataset.preset); b.textContent = t('view.' + p.id); b.title = t('hud.keyTitle', { k: p.key }); });
+    Array.prototype.forEach.call($('selScheme').options, (o) => { o.textContent = t('scheme.' + o.value); });
+    $('btnDefGuide').textContent = onOff(settings.guide);
+    refreshMenu();
+    if (screen === 'brief') { fillBrief(); refreshBriefButtons(); }
+  }
 
   $('btnHelp').addEventListener('click', () => setScreen('help'));
   $('btnHelpBack').addEventListener('click', () => setScreen('menu'));
@@ -570,12 +601,12 @@
   $('btnAbout').addEventListener('click', () => setScreen('about'));
   $('btnAboutBack').addEventListener('click', () => setScreen('menu'));
   $('selScheme').addEventListener('change', (e) => { settings.scheme = e.target.value; saveSettings(); });
-  $('btnDefGuide').addEventListener('click', () => { settings.guide = !settings.guide; saveSettings(); $('btnDefGuide').textContent = settings.guide ? 'On' : 'Off'; $('btnDefGuide').classList.toggle('on', settings.guide); });
+  $('btnDefGuide').addEventListener('click', () => { settings.guide = !settings.guide; saveSettings(); $('btnDefGuide').textContent = onOff(settings.guide); $('btnDefGuide').classList.toggle('on', settings.guide); });
   $('btnGhostCode').addEventListener('click', () => {
-    const t = window.prompt('Paste a replay code to race against it');
+    const t = window.prompt(t('prompt.paste'));
     if (!t) return;
     try { pastedReplay = decodeReplay(t); openBrief(Levels.findIndex((l) => l.id === pastedReplay.level)); ghostPick = { mode: 'code' }; refreshBriefButtons(); }
-    catch (e) { window.alert('That is not a valid replay code.'); }
+    catch (e) { window.alert(t('prompt.bad')); }
   });
   $('btnBriefBack').addEventListener('click', () => setScreen('menu'));
   $('btnBriefGuide').addEventListener('click', () => { briefGuide = !briefGuide; refreshBriefButtons(); });
@@ -599,9 +630,9 @@
   $('btnResultMenu').addEventListener('click', () => setScreen('menu'));
   $('btnCopy').addEventListener('click', () => {
     const code = encodeReplay(S), b = $('btnCopy');
-    const done = () => { b.textContent = 'Copied'; setTimeout(() => { b.textContent = 'Copy replay code'; }, 1500); };
-    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(code).then(done, () => window.prompt('Copy this replay code', code));
-    else window.prompt('Copy this replay code', code);
+    const done = () => { b.textContent = t('res.copied'); setTimeout(() => { b.textContent = t('res.copy'); }, 1500); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(code).then(done, () => window.prompt(t('prompt.copy'), code));
+    else window.prompt(t('prompt.copy'), code);
   });
 
   // camera by mouse or touch on the scene
@@ -670,6 +701,8 @@
   resize();
 
   // ---- start ----
+  L.setLang(hashArgs.lang || L.detect(), false);
+  relabel();
   const startLevelIdx = Math.max(0, Levels.findIndex((l) => l.id === hashArgs.level));
   level = Levels[startLevelIdx]; levelIdx = startLevelIdx;
   attractFor(level);

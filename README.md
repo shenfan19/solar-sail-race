@@ -18,6 +18,10 @@ Play online: https://shenfan19.github.io/solar-sail-race/
 
 Each mission has a briefing, a pilot guide, a three-star rating from the finish time, and a results screen. Runs can be raced against the reference pilot, your own best, or a pasted replay code.
 
+## Languages
+
+English, 简体中文, 繁體中文, 日本語, 한국어, Français, Deutsch, Español, Русский. The game follows the browser language; the menu footer and Settings switch it. All interface text is in `js/locales`, one file per language.
+
 ## Controls
 
 The sail is tilted with a pad: right leans it forward along the orbit, up leans it toward the orbit pole. The green dot on the pad is the guide.
@@ -47,7 +51,7 @@ node tools/autopilot.js          # generate reference solutions
 node tools/verify.js solutions/earth-polar_euler.json
 ```
 
-Deep links: `index.html#level=earth-polar`, `#screen=settings`, `#autoplay=1` flies the reference solution and shows the results screen.
+Deep links: `index.html#level=earth-polar`, `#screen=settings`, `#lang=ja`, `#autoplay=1` flies the reference solution and shows the results screen.
 
 ## Determinism
 
