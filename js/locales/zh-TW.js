@@ -9,7 +9,7 @@ SailI18n.register('zh-TW', {
   'menu.help': '玩法說明',
   'menu.ghostCode': '用重播碼比賽',
   'menu.settings': '設定',
-  'menu.by': '作者 Fan Shen、Jiafu Liu',
+  'menu.by': '作者 沈凡、劉家夫',
   'menu.source': '原始碼',
   'menu.about': '關於',
   'menu.padOn': '手把已連接。十字鍵或搖桿移動，A 鍵選擇。',
@@ -66,7 +66,7 @@ SailI18n.register('zh-TW', {
   'about.lead': '誰謂河廣 Solar Sail Race，一款關於太陽帆的非即時競速遊戲。',
   'about.name': '名字出自《詩經·衛風·河廣》：誰謂河廣？一葦杭之。',
   'about.physics': '物理是確定性的質點模型：中心天體的引力，加上光對理想平面帆的壓力。成績由重新模擬每一份重播得出。',
-  'about.author': '作者', 'about.authorName': 'Fan Shen、Jiafu Liu', 'about.source': '原始碼', 'about.license': '授權', 'about.version': '版本',
+  'about.author': '作者', 'about.authorName': '沈凡、劉家夫', 'about.source': '原始碼', 'about.license': '授權', 'about.version': '版本',
   'about.ai': '開發中借助 AI 程式輔助完成程式碼生成、自動化測試和文件。',
 
   'prompt.paste': '貼上重播碼，與它比賽',
