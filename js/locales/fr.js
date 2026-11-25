@@ -66,7 +66,7 @@ SailI18n.register('fr', {
   'about.lead': 'Sail Race 誰謂河廣, un jeu de course sans temps réel sur les voiles solaires.',
   'about.name': 'Le nom chinois vient du Classique des vers : 誰謂河廣？一葦杭之. Qui dit que le fleuve est large ? Un seul roseau suffit pour le traverser.',
   'about.physics': 'La physique est un modèle déterministe de point matériel : gravité du corps central et pression de radiation sur une voile plane idéale. Les scores viennent de la re-simulation de chaque replay.',
-  'about.author': 'Auteur', 'about.authorName': 'Fan Shen', 'about.source': 'Code source', 'about.license': 'Licence', 'about.version': 'Version',
+  'about.author': 'Auteur', 'about.authorName': 'Fan Shen', 'about.advisor': 'Conseiller scientifique', 'about.advisorName': 'Jiafu Liu', 'about.source': 'Code source', 'about.license': 'Licence', 'about.version': 'Version',
   'about.ai': 'Développé avec une assistance IA pour la génération de code, les tests automatisés et la documentation.',
 
   'prompt.paste': 'Collez un code de replay pour l’affronter',

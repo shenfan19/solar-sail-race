@@ -66,7 +66,7 @@ SailI18n.register('ja', {
   'about.lead': 'Sail Race 誰謂河廣、ソーラーセイルを題材にした非リアルタイムのレースゲーム。',
   'about.name': '中国語の題名は『詩経』衛風「河広」から：誰か河を広しと謂う、一葦もて之を杭る。',
   'about.physics': '物理は決定論的な質点モデルです。中心天体の重力に、理想的な平面帆への光圧を加えます。スコアは各リプレイを再シミュレーションして求めます。',
-  'about.author': '作者', 'about.authorName': 'Fan Shen', 'about.source': 'ソース', 'about.license': 'ライセンス', 'about.version': 'バージョン',
+  'about.author': '作者', 'about.authorName': 'Fan Shen', 'about.advisor': '科学顧問', 'about.advisorName': '劉家夫 (Jiafu Liu)', 'about.source': 'ソース', 'about.license': 'ライセンス', 'about.version': 'バージョン',
   'about.ai': 'コード生成、自動テスト、ドキュメント作成に AI コーディング支援を用いて開発しました。',
 
   'prompt.paste': 'リプレイコードを貼り付けて競争',

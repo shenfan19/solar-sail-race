@@ -66,7 +66,7 @@ SailI18n.register('zh-CN', {
   'about.lead': '谁谓河广 Sail Race，一款关于太阳帆的非即时竞速游戏。',
   'about.name': '名字出自《诗经·卫风·河广》：谁谓河广？一苇杭之。',
   'about.physics': '物理是确定性的质点模型：中心天体的引力，加上光对理想平面帆的压力。成绩由重新模拟每一份回放得出。',
-  'about.author': '作者', 'about.authorName': 'Fan Shen', 'about.source': '源码', 'about.license': '许可证', 'about.version': '版本',
+  'about.author': '作者', 'about.authorName': 'Fan Shen', 'about.advisor': '科学顾问', 'about.advisorName': '刘家夫', 'about.source': '源码', 'about.license': '许可证', 'about.version': '版本',
   'about.ai': '开发中借助 AI 编程辅助完成代码生成、自动化测试和文档。',
 
   'prompt.paste': '粘贴回放码，与它比赛',

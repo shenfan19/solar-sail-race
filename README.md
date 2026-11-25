@@ -63,6 +63,8 @@ Citation metadata is in `CITATION.cff`.
 
 ## Acknowledgments
 
+Jiafu Liu served as scientific advisor on solar sail dynamics.
+
 This project was developed with AI coding assistance for code generation, automated testing, and documentation.
 
 ## License

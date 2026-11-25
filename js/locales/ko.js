@@ -66,7 +66,7 @@ SailI18n.register('ko', {
   'about.lead': 'Sail Race 誰謂河廣, 태양돛을 다룬 비실시간 레이싱 게임.',
   'about.name': '중국어 제목은 《시경》 위풍 〈하광〉에서 왔습니다: 누가 강이 넓다 하는가, 갈대 한 줄기로 건너리.',
   'about.physics': '물리는 결정론적 질점 모델입니다. 중심 천체의 중력에 이상적인 평면 돛에 작용하는 광압을 더합니다. 점수는 각 리플레이를 다시 시뮬레이션해서 얻습니다.',
-  'about.author': '제작', 'about.authorName': 'Fan Shen', 'about.source': '소스', 'about.license': '라이선스', 'about.version': '버전',
+  'about.author': '제작', 'about.authorName': 'Fan Shen', 'about.advisor': '과학 자문', 'about.advisorName': 'Jiafu Liu', 'about.source': '소스', 'about.license': '라이선스', 'about.version': '버전',
   'about.ai': '코드 생성, 자동 테스트, 문서 작성에 AI 코딩 지원을 받아 개발했습니다.',
 
   'prompt.paste': '리플레이 코드를 붙여 넣어 경주하기',

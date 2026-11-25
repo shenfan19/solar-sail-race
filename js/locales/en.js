@@ -66,7 +66,7 @@ SailI18n.register('en', {
   'about.lead': 'Sail Race 谁谓河广, a non-real-time racing game about solar sails.',
   'about.name': 'The Chinese name comes from the Book of Songs: 誰謂河廣？一葦杭之. Who says the river is wide? A single reed can cross it.',
   'about.physics': 'The physics is a deterministic point-mass model: gravity of the central body plus light pressure on an ideal flat sail. Scores come from re-simulating each replay.',
-  'about.author': 'Author', 'about.authorName': 'Fan Shen', 'about.source': 'Source', 'about.license': 'License', 'about.version': 'Version',
+  'about.author': 'Author', 'about.authorName': 'Fan Shen', 'about.advisor': 'Scientific advisor', 'about.advisorName': 'Jiafu Liu', 'about.source': 'Source', 'about.license': 'License', 'about.version': 'Version',
   'about.ai': 'Developed with AI coding assistance for code generation, automated testing, and documentation.',
 
   'prompt.paste': 'Paste a replay code to race against it',

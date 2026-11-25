@@ -66,7 +66,7 @@ SailI18n.register('de', {
   'about.lead': 'Sail Race 誰謂河廣, ein Rennspiel ohne Echtzeitdruck über Sonnensegel.',
   'about.name': 'Der chinesische Name stammt aus dem Buch der Lieder: 誰謂河廣？一葦杭之. Wer sagt, der Fluss sei breit? Ein einziges Schilfrohr trägt hinüber.',
   'about.physics': 'Die Physik ist ein deterministisches Punktmassenmodell: Schwerkraft des Zentralkörpers plus Strahlungsdruck auf ein ideales ebenes Segel. Die Wertung entsteht durch erneute Simulation jedes Replays.',
-  'about.author': 'Autor', 'about.authorName': 'Fan Shen', 'about.source': 'Quellcode', 'about.license': 'Lizenz', 'about.version': 'Version',
+  'about.author': 'Autor', 'about.authorName': 'Fan Shen', 'about.advisor': 'Wissenschaftliche Beratung', 'about.advisorName': 'Jiafu Liu', 'about.source': 'Quellcode', 'about.license': 'Lizenz', 'about.version': 'Version',
   'about.ai': 'Entwickelt mit KI-Unterstützung für Codeerzeugung, automatisierte Tests und Dokumentation.',
 
   'prompt.paste': 'Replay-Code einfügen, um dagegen zu fliegen',
