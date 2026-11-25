@@ -1,6 +1,6 @@
 SailI18n.register('ja', {
-  'doc.title': 'Sail Race 誰謂河廣',
-  'menu.title': 'Sail Race',
+  'doc.title': 'Solar Sail Race 誰謂河廣',
+  'menu.title': 'Solar Sail Race',
   'menu.subtitle': '誰謂河廣',
   'menu.lead': 'エンジンのない帆。太陽の光が押し、重力が軌道を曲げる。帆の向きを合わせれば、光があなたを新しい軌道へ運ぶ。',
   'menu.feat1': '本物の軌道力学',
@@ -9,7 +9,7 @@ SailI18n.register('ja', {
   'menu.help': '遊び方',
   'menu.ghostCode': 'リプレイコードと競争',
   'menu.settings': '設定',
-  'menu.by': '作者 Fan Shen',
+  'menu.by': '作者 Fan Shen、Jiafu Liu',
   'menu.source': 'ソース',
   'menu.about': 'このゲームについて',
   'menu.padOn': 'ゲームパッド接続中。十字キーかスティックで移動、A で決定。',
@@ -63,10 +63,10 @@ SailI18n.register('ja', {
   'help.ok': 'わかった',
 
   'about.title': 'このゲームについて',
-  'about.lead': 'Sail Race 誰謂河廣、ソーラーセイルを題材にした非リアルタイムのレースゲーム。',
+  'about.lead': 'Solar Sail Race 誰謂河廣、ソーラーセイルを題材にした非リアルタイムのレースゲーム。',
   'about.name': '中国語の題名は『詩経』衛風「河広」から：誰か河を広しと謂う、一葦もて之を杭る。',
   'about.physics': '物理は決定論的な質点モデルです。中心天体の重力に、理想的な平面帆への光圧を加えます。スコアは各リプレイを再シミュレーションして求めます。',
-  'about.author': '作者', 'about.authorName': 'Fan Shen', 'about.advisor': '科学顧問', 'about.advisorName': '劉家夫 (Jiafu Liu)', 'about.source': 'ソース', 'about.license': 'ライセンス', 'about.version': 'バージョン',
+  'about.author': '作者', 'about.authorName': 'Fan Shen、Jiafu Liu', 'about.source': 'ソース', 'about.license': 'ライセンス', 'about.version': 'バージョン',
   'about.ai': 'コード生成、自動テスト、ドキュメント作成に AI コーディング支援を用いて開発しました。',
 
   'prompt.paste': 'リプレイコードを貼り付けて競争',

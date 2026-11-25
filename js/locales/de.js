@@ -1,6 +1,6 @@
 SailI18n.register('de', {
-  'doc.title': 'Sail Race',
-  'menu.title': 'Sail Race',
+  'doc.title': 'Solar Sail Race',
+  'menu.title': 'Solar Sail Race',
   'menu.subtitle': '誰謂河廣',
   'menu.lead': 'Ein Segel ohne Triebwerk. Sonnenlicht schiebt es, die Schwerkraft biegt seine Bahn. Richte es richtig aus, und das Licht trägt dich in eine neue Umlaufbahn.',
   'menu.feat1': 'Echte Bahnmechanik',
@@ -9,7 +9,7 @@ SailI18n.register('de', {
   'menu.help': 'Spielanleitung',
   'menu.ghostCode': 'Gegen einen Replay-Code fliegen',
   'menu.settings': 'Einstellungen',
-  'menu.by': 'von Fan Shen',
+  'menu.by': 'von Fan Shen und Jiafu Liu',
   'menu.source': 'Quellcode',
   'menu.about': 'Über',
   'menu.padOn': 'Gamepad verbunden. Steuerkreuz oder Stick zum Bewegen, A zum Auswählen.',
@@ -63,10 +63,10 @@ SailI18n.register('de', {
   'help.ok': 'Verstanden',
 
   'about.title': 'Über',
-  'about.lead': 'Sail Race 誰謂河廣, ein Rennspiel ohne Echtzeitdruck über Sonnensegel.',
+  'about.lead': 'Solar Sail Race 誰謂河廣, ein Rennspiel ohne Echtzeitdruck über Sonnensegel.',
   'about.name': 'Der chinesische Name stammt aus dem Buch der Lieder: 誰謂河廣？一葦杭之. Wer sagt, der Fluss sei breit? Ein einziges Schilfrohr trägt hinüber.',
   'about.physics': 'Die Physik ist ein deterministisches Punktmassenmodell: Schwerkraft des Zentralkörpers plus Strahlungsdruck auf ein ideales ebenes Segel. Die Wertung entsteht durch erneute Simulation jedes Replays.',
-  'about.author': 'Autor', 'about.authorName': 'Fan Shen', 'about.advisor': 'Wissenschaftliche Beratung', 'about.advisorName': 'Jiafu Liu', 'about.source': 'Quellcode', 'about.license': 'Lizenz', 'about.version': 'Version',
+  'about.author': 'Autoren', 'about.authorName': 'Fan Shen, Jiafu Liu', 'about.source': 'Quellcode', 'about.license': 'Lizenz', 'about.version': 'Version',
   'about.ai': 'Entwickelt mit KI-Unterstützung für Codeerzeugung, automatisierte Tests und Dokumentation.',
 
   'prompt.paste': 'Replay-Code einfügen, um dagegen zu fliegen',

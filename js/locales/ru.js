@@ -1,6 +1,6 @@
 SailI18n.register('ru', {
-  'doc.title': 'Sail Race',
-  'menu.title': 'Sail Race',
+  'doc.title': 'Solar Sail Race',
+  'menu.title': 'Solar Sail Race',
   'menu.subtitle': '誰謂河廣',
   'menu.lead': 'Парус без двигателя. Солнечный свет толкает его, гравитация искривляет путь. Разверните парус правильно, и свет унесёт вас на новую орбиту.',
   'menu.feat1': 'Настоящая орбитальная механика',
@@ -9,7 +9,7 @@ SailI18n.register('ru', {
   'menu.help': 'Как играть',
   'menu.ghostCode': 'Гонка с кодом повтора',
   'menu.settings': 'Настройки',
-  'menu.by': 'автор Fan Shen',
+  'menu.by': 'авторы Fan Shen и Jiafu Liu',
   'menu.source': 'Исходный код',
   'menu.about': 'Об игре',
   'menu.padOn': 'Геймпад подключён. Крестовина или стик для выбора, A для подтверждения.',
@@ -63,10 +63,10 @@ SailI18n.register('ru', {
   'help.ok': 'Понятно',
 
   'about.title': 'Об игре',
-  'about.lead': 'Sail Race 誰謂河廣, гоночная игра без реального времени о солнечных парусах.',
+  'about.lead': 'Solar Sail Race 誰謂河廣, гоночная игра без реального времени о солнечных парусах.',
   'about.name': 'Китайское название взято из «Книги песен»: 誰謂河廣？一葦杭之. Кто скажет, что река широка? Одной тростинки хватит, чтобы её переплыть.',
   'about.physics': 'Физика — детерминированная модель материальной точки: гравитация центрального тела плюс давление света на идеальный плоский парус. Результат получается повторным моделированием каждого повтора.',
-  'about.author': 'Автор', 'about.authorName': 'Fan Shen', 'about.advisor': 'Научный консультант', 'about.advisorName': 'Jiafu Liu', 'about.source': 'Исходный код', 'about.license': 'Лицензия', 'about.version': 'Версия',
+  'about.author': 'Авторы', 'about.authorName': 'Fan Shen, Jiafu Liu', 'about.source': 'Исходный код', 'about.license': 'Лицензия', 'about.version': 'Версия',
   'about.ai': 'Разработано с помощью ИИ при написании кода, автоматическом тестировании и документации.',
 
   'prompt.paste': 'Вставьте код повтора, чтобы соревноваться с ним',

@@ -1,6 +1,6 @@
 SailI18n.register('es', {
-  'doc.title': 'Sail Race',
-  'menu.title': 'Sail Race',
+  'doc.title': 'Solar Sail Race',
+  'menu.title': 'Solar Sail Race',
   'menu.subtitle': '誰謂河廣',
   'menu.lead': 'Una vela sin motor. La luz del Sol la empuja y la gravedad curva su camino. Oriéntala bien y la luz te llevará a una nueva órbita.',
   'menu.feat1': 'Mecánica orbital real',
@@ -9,7 +9,7 @@ SailI18n.register('es', {
   'menu.help': 'Cómo jugar',
   'menu.ghostCode': 'Competir con un código',
   'menu.settings': 'Ajustes',
-  'menu.by': 'por Fan Shen',
+  'menu.by': 'por Fan Shen y Jiafu Liu',
   'menu.source': 'Código fuente',
   'menu.about': 'Acerca de',
   'menu.padOn': 'Mando conectado. Cruceta o stick para moverte, A para elegir.',
@@ -63,10 +63,10 @@ SailI18n.register('es', {
   'help.ok': 'Entendido',
 
   'about.title': 'Acerca de',
-  'about.lead': 'Sail Race 誰謂河廣, un juego de carreras sin tiempo real sobre velas solares.',
+  'about.lead': 'Solar Sail Race 誰謂河廣, un juego de carreras sin tiempo real sobre velas solares.',
   'about.name': 'El nombre chino viene del Libro de los Cantares: 誰謂河廣？一葦杭之. ¿Quién dice que el río es ancho? Basta un junco para cruzarlo.',
   'about.physics': 'La física es un modelo determinista de masa puntual: la gravedad del cuerpo central más la presión de la luz sobre una vela plana ideal. Las puntuaciones salen de volver a simular cada repetición.',
-  'about.author': 'Autor', 'about.authorName': 'Fan Shen', 'about.advisor': 'Asesor científico', 'about.advisorName': 'Jiafu Liu', 'about.source': 'Código fuente', 'about.license': 'Licencia', 'about.version': 'Versión',
+  'about.author': 'Autores', 'about.authorName': 'Fan Shen, Jiafu Liu', 'about.source': 'Código fuente', 'about.license': 'Licencia', 'about.version': 'Versión',
   'about.ai': 'Desarrollado con asistencia de IA para generar código, pruebas automáticas y documentación.',
 
   'prompt.paste': 'Pega un código de repetición para competir con él',

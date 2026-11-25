@@ -1,6 +1,6 @@
 SailI18n.register('ko', {
-  'doc.title': 'Sail Race 誰謂河廣',
-  'menu.title': 'Sail Race',
+  'doc.title': 'Solar Sail Race 誰謂河廣',
+  'menu.title': 'Solar Sail Race',
   'menu.subtitle': '誰謂河廣',
   'menu.lead': '엔진 없는 돛. 햇빛이 밀고 중력이 길을 휘게 합니다. 돛의 각도를 잘 맞추면 빛이 새로운 궤도로 데려다 줍니다.',
   'menu.feat1': '실제 궤도 역학',
@@ -9,7 +9,7 @@ SailI18n.register('ko', {
   'menu.help': '플레이 방법',
   'menu.ghostCode': '리플레이 코드와 경주',
   'menu.settings': '설정',
-  'menu.by': '제작 Fan Shen',
+  'menu.by': '제작 Fan Shen, Jiafu Liu',
   'menu.source': '소스',
   'menu.about': '정보',
   'menu.padOn': '게임패드 연결됨. 십자키나 스틱으로 이동, A로 선택.',
@@ -63,10 +63,10 @@ SailI18n.register('ko', {
   'help.ok': '알겠어요',
 
   'about.title': '정보',
-  'about.lead': 'Sail Race 誰謂河廣, 태양돛을 다룬 비실시간 레이싱 게임.',
+  'about.lead': 'Solar Sail Race 誰謂河廣, 태양돛을 다룬 비실시간 레이싱 게임.',
   'about.name': '중국어 제목은 《시경》 위풍 〈하광〉에서 왔습니다: 누가 강이 넓다 하는가, 갈대 한 줄기로 건너리.',
   'about.physics': '물리는 결정론적 질점 모델입니다. 중심 천체의 중력에 이상적인 평면 돛에 작용하는 광압을 더합니다. 점수는 각 리플레이를 다시 시뮬레이션해서 얻습니다.',
-  'about.author': '제작', 'about.authorName': 'Fan Shen', 'about.advisor': '과학 자문', 'about.advisorName': 'Jiafu Liu', 'about.source': '소스', 'about.license': '라이선스', 'about.version': '버전',
+  'about.author': '제작', 'about.authorName': 'Fan Shen, Jiafu Liu', 'about.source': '소스', 'about.license': '라이선스', 'about.version': '버전',
   'about.ai': '코드 생성, 자동 테스트, 문서 작성에 AI 코딩 지원을 받아 개발했습니다.',
 
   'prompt.paste': '리플레이 코드를 붙여 넣어 경주하기',

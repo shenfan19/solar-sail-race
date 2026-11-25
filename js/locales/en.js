@@ -1,6 +1,6 @@
 SailI18n.register('en', {
-  'doc.title': 'Sail Race',
-  'menu.title': 'Sail Race',
+  'doc.title': 'Solar Sail Race',
+  'menu.title': 'Solar Sail Race',
   'menu.subtitle': '谁谓河广',
   'menu.lead': 'A sail with no engine. Sunlight pushes it, gravity bends its path. Tilt it the right way and the light carries you to a new orbit.',
   'menu.feat1': 'Real orbital physics',
@@ -9,7 +9,7 @@ SailI18n.register('en', {
   'menu.help': 'How to play',
   'menu.ghostCode': 'Race a replay code',
   'menu.settings': 'Settings',
-  'menu.by': 'by Fan Shen',
+  'menu.by': 'by Fan Shen and Jiafu Liu',
   'menu.source': 'Source',
   'menu.about': 'About',
   'menu.padOn': 'Gamepad connected. D-pad or stick to move, A to select.',
@@ -63,10 +63,10 @@ SailI18n.register('en', {
   'help.ok': 'Got it',
 
   'about.title': 'About',
-  'about.lead': 'Sail Race 谁谓河广, a non-real-time racing game about solar sails.',
+  'about.lead': 'Solar Sail Race 谁谓河广, a non-real-time racing game about solar sails.',
   'about.name': 'The Chinese name comes from the Book of Songs: 誰謂河廣？一葦杭之. Who says the river is wide? A single reed can cross it.',
   'about.physics': 'The physics is a deterministic point-mass model: gravity of the central body plus light pressure on an ideal flat sail. Scores come from re-simulating each replay.',
-  'about.author': 'Author', 'about.authorName': 'Fan Shen', 'about.advisor': 'Scientific advisor', 'about.advisorName': 'Jiafu Liu', 'about.source': 'Source', 'about.license': 'License', 'about.version': 'Version',
+  'about.author': 'Authors', 'about.authorName': 'Fan Shen, Jiafu Liu', 'about.source': 'Source', 'about.license': 'License', 'about.version': 'Version',
   'about.ai': 'Developed with AI coding assistance for code generation, automated testing, and documentation.',
 
   'prompt.paste': 'Paste a replay code to race against it',

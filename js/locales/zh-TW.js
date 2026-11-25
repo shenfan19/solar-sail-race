@@ -1,7 +1,7 @@
 SailI18n.register('zh-TW', {
-  'doc.title': '誰謂河廣 Sail Race',
+  'doc.title': '誰謂河廣 Solar Sail Race',
   'menu.title': '誰謂河廣',
-  'menu.subtitle': 'Sail Race',
+  'menu.subtitle': 'Solar Sail Race',
   'menu.lead': '一面沒有引擎的帆。陽光推它，引力彎折它的路徑。把帆轉對角度，光就會把你送上新的軌道。',
   'menu.feat1': '真實的軌道力學',
   'menu.feat2': '不考反應，隨時暫停',
@@ -9,7 +9,7 @@ SailI18n.register('zh-TW', {
   'menu.help': '玩法說明',
   'menu.ghostCode': '用重播碼比賽',
   'menu.settings': '設定',
-  'menu.by': '作者 Fan Shen',
+  'menu.by': '作者 Fan Shen、Jiafu Liu',
   'menu.source': '原始碼',
   'menu.about': '關於',
   'menu.padOn': '手把已連接。十字鍵或搖桿移動，A 鍵選擇。',
@@ -63,10 +63,10 @@ SailI18n.register('zh-TW', {
   'help.ok': '知道了',
 
   'about.title': '關於',
-  'about.lead': '誰謂河廣 Sail Race，一款關於太陽帆的非即時競速遊戲。',
+  'about.lead': '誰謂河廣 Solar Sail Race，一款關於太陽帆的非即時競速遊戲。',
   'about.name': '名字出自《詩經·衛風·河廣》：誰謂河廣？一葦杭之。',
   'about.physics': '物理是確定性的質點模型：中心天體的引力，加上光對理想平面帆的壓力。成績由重新模擬每一份重播得出。',
-  'about.author': '作者', 'about.authorName': 'Fan Shen', 'about.advisor': '科學顧問', 'about.advisorName': '劉家夫', 'about.source': '原始碼', 'about.license': '授權', 'about.version': '版本',
+  'about.author': '作者', 'about.authorName': 'Fan Shen、Jiafu Liu', 'about.source': '原始碼', 'about.license': '授權', 'about.version': '版本',
   'about.ai': '開發中借助 AI 程式輔助完成程式碼生成、自動化測試和文件。',
 
   'prompt.paste': '貼上重播碼，與它比賽',

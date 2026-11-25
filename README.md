@@ -1,4 +1,6 @@
-# Sail Race 谁谓河广
+# Solar Sail Race 谁谓河广
+
+By Fan Shen and Jiafu Liu.
 
 The Chinese name comes from the Book of Songs (詩經), *Wei Feng, He Guang*: 誰謂河廣？一葦杭之. Who says the river is wide? A single reed can cross it.
 
@@ -62,8 +64,6 @@ Deep links: `index.html#level=earth-polar`, `#screen=settings`, `#lang=ja`, `#au
 Citation metadata is in `CITATION.cff`.
 
 ## Acknowledgments
-
-Jiafu Liu served as scientific advisor on solar sail dynamics.
 
 This project was developed with AI coding assistance for code generation, automated testing, and documentation.
 

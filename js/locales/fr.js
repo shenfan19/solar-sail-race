@@ -1,6 +1,6 @@
 SailI18n.register('fr', {
-  'doc.title': 'Sail Race',
-  'menu.title': 'Sail Race',
+  'doc.title': 'Solar Sail Race',
+  'menu.title': 'Solar Sail Race',
   'menu.subtitle': '誰謂河廣',
   'menu.lead': 'Une voile sans moteur. La lumière du Soleil la pousse, la gravité courbe sa trajectoire. Orientez-la bien et la lumière vous porte vers une nouvelle orbite.',
   'menu.feat1': 'Vraie mécanique orbitale',
@@ -9,7 +9,7 @@ SailI18n.register('fr', {
   'menu.help': 'Comment jouer',
   'menu.ghostCode': 'Affronter un code de replay',
   'menu.settings': 'Réglages',
-  'menu.by': 'par Fan Shen',
+  'menu.by': 'par Fan Shen et Jiafu Liu',
   'menu.source': 'Code source',
   'menu.about': 'À propos',
   'menu.padOn': 'Manette connectée. Croix ou stick pour se déplacer, A pour choisir.',
@@ -63,10 +63,10 @@ SailI18n.register('fr', {
   'help.ok': 'Compris',
 
   'about.title': 'À propos',
-  'about.lead': 'Sail Race 誰謂河廣, un jeu de course sans temps réel sur les voiles solaires.',
+  'about.lead': 'Solar Sail Race 誰謂河廣, un jeu de course sans temps réel sur les voiles solaires.',
   'about.name': 'Le nom chinois vient du Classique des vers : 誰謂河廣？一葦杭之. Qui dit que le fleuve est large ? Un seul roseau suffit pour le traverser.',
   'about.physics': 'La physique est un modèle déterministe de point matériel : gravité du corps central et pression de radiation sur une voile plane idéale. Les scores viennent de la re-simulation de chaque replay.',
-  'about.author': 'Auteur', 'about.authorName': 'Fan Shen', 'about.advisor': 'Conseiller scientifique', 'about.advisorName': 'Jiafu Liu', 'about.source': 'Code source', 'about.license': 'Licence', 'about.version': 'Version',
+  'about.author': 'Auteurs', 'about.authorName': 'Fan Shen, Jiafu Liu', 'about.source': 'Code source', 'about.license': 'Licence', 'about.version': 'Version',
   'about.ai': 'Développé avec une assistance IA pour la génération de code, les tests automatisés et la documentation.',
 
   'prompt.paste': 'Collez un code de replay pour l’affronter',
