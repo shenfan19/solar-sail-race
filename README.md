@@ -3,7 +3,7 @@
 By Fan Shen and Jiafu Liu.
 
 - Fan Shen 沈凡, School of Systems Science and Engineering, Sun Yat-sen University, shenfan19@gmail.com
-- Jiafu Liu 刘家夫, School of Aeronautics and Astronautics, Sun Yat-sen University (Shenzhen Campus), liujf53@mail.sysu.edu.cn
+- Jiafu Liu 刘家夫, School of Aeronautics and Astronautics, Sun Yat-sen University, liujf53@mail.sysu.edu.cn
 
 The Chinese name comes from the Book of Songs (詩經), *Wei Feng, He Guang*: 誰謂河廣？一葦杭之. Who says the river is wide? A single reed can cross it.
 

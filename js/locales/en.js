@@ -163,7 +163,7 @@ SailI18n.register('en', {
   "lv.race-deep.steps": ["You start at rest, and the field pulls you toward its heaviest corner.", "With few bright stars a film sail is weak. An electric sail loses its push only as 1/r and does better in a wide dim field.", "Gravity of passing stars can turn you for free. Pick the stars that bend you outward."],
   "lv.race-deep.hints": ["First get moving: let a star pull you in and lean so its light sends you past it.", "Far from bright stars, only gravity and the wind still work. Keep the line outward."],
   "about.author1": "Fan Shen, School of Systems Science and Engineering, Sun Yat-sen University",
-  "about.author2": "Jiafu Liu, School of Aeronautics and Astronautics, Sun Yat-sen University (Shenzhen Campus)",
+  "about.author2": "Jiafu Liu, School of Aeronautics and Astronautics, Sun Yat-sen University",
   "about.changes": "Changelog",
   "brief.flat": "2D",
   "brief.flatRow": "Lock 2D",

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-version="0.4.2">
+<html lang="en" data-version="0.4.3">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -124,7 +124,7 @@
   #changelog h3 { font-size:15px; margin:14px 0 4px; color:var(--accent); font-family:var(--mono); }
   #changelog ul { margin:0; padding-left:20px; font-size:14px; line-height:1.5; }
   .sheet details summary { cursor:pointer; color:var(--accent); font-size:16px; padding:10px 0 4px; }
-  .sheet td .mail { font-family:var(--mono); font-size:14px; }
+  .sheet td .mail { font-family:var(--mono); font-size:14px; white-space:nowrap; }
   #timer small { font-family:var(--body); font-size:0.38em; color:var(--muted); margin-left:6px; }
   #goalBox { flex:1; max-width:520px; margin-left:auto; }
   #goalLabel { font-size:clamp(15px, 1.6vw, 19px); display:flex; justify-content:space-between; gap:12px; }
@@ -331,8 +331,8 @@
       <p class="about" data-i18n="about.modes"></p>
       <table>
         <tr><td data-i18n="about.author"></td><td>
-          <div data-i18n="about.author1"></div><a class="mail" href="mailto:shenfan19@gmail.com">shenfan19@gmail.com</a>
-          <div style="margin-top:8px" data-i18n="about.author2"></div><a class="mail" href="mailto:liujf53@mail.sysu.edu.cn">liujf53@mail.sysu.edu.cn</a>
+          <div><span data-i18n="about.author1"></span> <a class="mail" href="mailto:shenfan19@gmail.com">shenfan19@gmail.com</a></div>
+          <div style="margin-top:8px"><span data-i18n="about.author2"></span> <a class="mail" href="mailto:liujf53@mail.sysu.edu.cn">liujf53@mail.sysu.edu.cn</a></div>
         </td></tr>
         <tr><td data-i18n="about.source"></td><td><a href="https://github.com/shenfan19/solar-sail-race" target="_blank" rel="noopener">github.com/shenfan19/solar-sail-race</a></td></tr>
         <tr><td data-i18n="about.license"></td><td>MIT</td></tr>

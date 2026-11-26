@@ -2,6 +2,13 @@
 // items: one list per language; a language without its own list shows the English one.
 window.SailChangelog = [
   {
+    v: '0.4.3', date: '2026-11-26', items: {
+      en: ['A click on the dimmed area round any window closes it; for the results it opens the view of the flight.', 'In About, each author\'s email sits on the same line as the name.'],
+      'zh-CN': ['点击任何弹窗外的暗色区域即可关闭弹窗；结果窗点外面则进入查看现场。', '关于页里两位作者的邮箱与姓名单位放在同一行。'],
+      ja: ['どのウィンドウも外側の暗い部分をクリックすると閉じます。結果ウィンドウでは飛行の確認画面になります。', '「このゲームについて」で、作者のメールアドレスを名前と同じ行に表示します。']
+    }
+  },
+  {
     v: '0.4.2', date: '2026-11-26', items: {
       en: ['The front page puts the two modes, missions and star race, in two large panels; the levels under them are smaller cards.', 'Interface languages are now English, Simplified Chinese and Japanese.'],
       'zh-CN': ['首页把仿真任务与星际竞速两种模式做成两块大面板，下面的关卡卡片缩小。', '界面语言改为英文、简体中文、日文三种。'],

@@ -816,6 +816,13 @@
   $('btnInspect').addEventListener('click', inspect);
   $('btnResultClose').addEventListener('click', inspect);
   $('btnBackResult').addEventListener('click', () => setScreen('result'));
+  // a click on the dimmed area round any popup closes it: back one step, and for the results the same as the close button
+  ['brief', 'garage', 'result', 'settings', 'help', 'about'].forEach((id) => {
+    $(id).addEventListener('click', (e) => {
+      if (e.target !== e.currentTarget || screen !== id) return;
+      if (id === 'result') inspect(); else goBack();
+    });
+  });
   $('btnCopy').addEventListener('click', () => {
     const code = encodeReplay(S), b = $('btnCopy');
     const done = () => { b.textContent = t('res.copied'); setTimeout(() => { b.textContent = t('res.copy'); }, 1500); };

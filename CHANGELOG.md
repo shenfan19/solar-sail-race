@@ -2,6 +2,11 @@
 
 The same entries, in each interface language, are shown in the game under About.
 
+## 0.4.3 · 2026-11-26
+
+- A click on the dimmed area round any window closes it; for the results it opens the view of the flight.
+- In About, each author's email sits on the same line as the name; affiliations as in CITATION.cff.
+
 ## 0.4.2 · 2026-11-26
 
 - The front page puts the two modes, missions and star race, in two large panels; the levels under them are smaller cards.
