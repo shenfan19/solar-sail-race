@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-version="0.2.0">
+<html lang="en" data-version="0.3.0">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -18,7 +18,8 @@
     --c-axis-x:#6a3c42; --c-axis-y:#3d6448; --c-axis-z:#3c5068;
     --c-sun:#e2b060; --c-earth:#4f78a8; --c-shadow:#9aa0b4; --c-ghost:#9aa3c4; --c-trail:#d4a24c;
     --c-predict:#7fb38e; --c-sail:#a9c3dc; --c-craft:#f2f4f7; --c-normal:#c76d6d; --c-light:#d9be6a;
-    --c-guide:#7fb38e; --c-pad:#8a92a2;
+    --c-guide:#7fb38e; --c-pad:#8a92a2; --c-tether:#b8a6d9;
+    --c-star-G:#e2b060; --c-star-K:#d9884f; --c-star-F:#ece3b8; --c-star-A:#c9d8f2; --c-star-M:#c45a4a;
     --display:'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif; --body:'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
     --mono:'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   }
@@ -63,6 +64,15 @@
   .tag.Easy { color:var(--green); } .tag.Medium { color:var(--sun); } .tag.Hard { color:var(--pink); }
   .stars { font-size:18px; letter-spacing:3px; color:var(--faint); }
   .stars b { color:var(--gold); font-weight:400; }
+  #modeTabs { display:flex; gap:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; }
+  #modeTabs .btn { border:0; border-radius:0; padding:7px 16px; background:transparent; color:var(--muted); }
+  #modeTabs .btn.on { background:#1b2433; color:var(--text); box-shadow:inset 0 -2px 0 var(--sun); }
+  .fiction { font-size:14px; color:var(--muted); border-left:3px solid var(--pink); padding:6px 12px; margin:0 0 14px; line-height:1.45; }
+  #garageHulls, #garageMechs { display:flex; flex-wrap:wrap; gap:8px; justify-content:flex-end; }
+  #garage .opt { align-items:flex-start; } #garage .opt > span { padding-top:5px; white-space:nowrap; }
+  #garageDesc { font-size:14px; color:var(--muted); line-height:1.5; margin:12px 0 0; } #garageDesc b { color:var(--text); font-weight:500; }
+  #garageWarn:empty { display:none; }
+  .btn:disabled { opacity:0.4; cursor:not-allowed; }
   #menuBtns { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
   #menuFoot { margin-top:auto; display:flex; flex-direction:column; align-items:center; gap:8px; color:var(--muted); font-size:14px; }
   #menuFoot .links { display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:6px 14px; }
@@ -133,6 +143,7 @@
     .lead-home { font-size:14px; line-height:1.45; margin-top:8px; }
     .feats { font-size:12px; gap:4px 14px; margin-top:8px; }
     #levels { gap:8px; margin-top:0; }
+    #modeTabs .btn { padding:5px 12px; font-size:13px; }
     .card { width:100%; max-width:420px; padding:9px 12px; border-radius:6px; }
     .card:hover, .card:focus-visible { transform:none; }
     .card .num { display:inline; font-size:11px; margin-right:8px; }
@@ -143,6 +154,8 @@
     #menuFoot { gap:4px; font-size:12px; } #pads { display:none; } select.lang { font-size:12px; }
   }
   @media (max-width: 600px) and (max-height: 600px) { .feats { display:none; } }
+  /* very short phones: one line per mission card, the stars stand in for the best time */
+  @media (max-height: 600px) and (max-width: 600px) { .card { display:flex; align-items:center; gap:8px; } .card .row { margin:0 0 0 auto; flex-shrink:0; } .card .best { display:none; } .card .name { flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } }
   @media (max-width: 760px) { #hudViews { top:auto; bottom:210px; } #coach { width:92vw; bottom:210px; } #keyhints { display:none; } #padBox { bottom:14px; } #hudBtns { bottom:14px; } }
 </style>
 </head>
@@ -158,6 +171,7 @@
       <div class="lead-home" data-i18n="menu.lead"></div>
       <div class="feats"><span data-i18n="menu.feat1"></span><span data-i18n="menu.feat2"></span><span data-i18n="menu.feat3"></span></div>
     </div>
+    <div id="modeTabs" role="group"><button class="btn" data-mode="sim" data-i18n="menu.tabSim"></button><button class="btn" data-mode="race" data-i18n="menu.tabRace"></button></div>
     <div id="levels"></div>
     <div id="menuBtns">
       <button class="btn" id="btnHelp" data-i18n="menu.help"></button>
@@ -182,13 +196,30 @@
       <div id="briefNum" style="color:var(--muted);font-family:var(--mono);letter-spacing:0.1em;font-size:13px;text-transform:uppercase"></div>
       <h2 id="briefName"></h2>
       <div class="lead" id="briefGoal"></div>
+      <p class="fiction hidden" id="briefFiction" data-i18n="brief.fiction"></p>
       <ol id="briefSteps"></ol>
+      <div class="opt"><span data-i18n="brief.craft"></span><button class="btn small" id="btnBriefCraft"></button></div>
       <div class="opt"><span data-i18n="brief.guide"></span><button class="btn small on" id="btnBriefGuide"></button></div>
       <div class="opt"><span data-i18n="brief.ghost"></span><button class="btn small" id="btnBriefGhost"></button></div>
       <div class="btns">
         <button class="btn primary" id="btnLaunch" data-i18n="brief.launch"></button>
         <button class="btn" id="btnBriefBack" data-i18n="back"></button>
       </div>
+    </div>
+  </div>
+
+  <!-- hangar: sail type and attitude mechanisms -->
+  <div id="garage" class="screen center hidden">
+    <div class="sheet">
+      <h2 data-i18n="garage.title"></h2>
+      <div class="opt"><span data-i18n="garage.hull"></span><div id="garageHulls"></div></div>
+      <div class="opt"><span data-i18n="garage.mechs"></span><div id="garageMechs"></div></div>
+      <p class="small" data-i18n="garage.mechsNote"></p>
+      <table id="garageStats"></table>
+      <p id="garageDesc"></p>
+      <p class="fiction" id="garageWarn"></p>
+      <p class="small" data-i18n="garage.note"></p>
+      <div class="btns"><button class="btn primary" id="btnGarageDone" data-i18n="set.done"></button></div>
     </div>
   </div>
 
@@ -236,6 +267,7 @@
       <div class="bigtime"><span id="resultTime"></span><small id="resultUnit"></small></div>
       <div id="resultBanner"></div>
       <div id="resultMsg"></div>
+      <div id="resultCraft" style="color:var(--muted);font-size:14px"></div>
       <div class="stats" id="resultStats"></div>
       <div class="btns" style="justify-content:center">
         <button class="btn primary" id="btnNext" data-i18n="res.next"></button>
@@ -267,6 +299,7 @@
         <li data-i18n="help.l1"></li>
         <li data-i18n="help.l2"></li>
         <li data-i18n="help.l3"></li>
+        <li data-i18n="help.l4"></li>
       </ol>
       <table>
         <tr><td data-i18n="help.gamepad"></td><td data-i18n="help.gamepadText"></td></tr>
@@ -284,6 +317,7 @@
       <div class="lead" data-i18n="about.lead"></div>
       <p class="about" data-i18n="about.name"></p>
       <p class="about" data-i18n="about.physics"></p>
+      <p class="about" data-i18n="about.modes"></p>
       <table>
         <tr><td data-i18n="about.author"></td><td data-i18n="about.authorName"></td></tr>
         <tr><td data-i18n="about.source"></td><td><a href="https://github.com/shenfan19/solar-sail-race" target="_blank" rel="noopener">github.com/shenfan19/solar-sail-race</a></td></tr>
@@ -308,6 +342,7 @@
 <script src="js/locales/ru.js"></script>
 <script src="js/trig.js"></script>
 <script src="js/controls.js"></script>
+<script src="js/crafts.js"></script>
 <script src="js/sim.js"></script>
 <script src="js/guide.js"></script>
 <script src="js/view3d.js"></script>

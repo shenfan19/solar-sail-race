@@ -1,8 +1,9 @@
 // Game front end: screens (menu, briefing, play, pause, results), input (pad, keyboard, mouse, gamepad), 3D drawing.
-// All physics lives in sim.js, control mapping in controls.js, guidance in guide.js, drawing helpers in view3d.js.
+// All physics lives in sim.js, control mapping in controls.js, craft data in crafts.js, guidance in guide.js,
+// drawing helpers in view3d.js. Two modes: 'sim' missions with real parameters, 'race' courses that are fiction on purpose.
 (function () {
   'use strict';
-  const Sim = window.SailSim, Levels = window.SailLevels, Controls = window.SailControls, Guide = window.SailGuide, V = window.SailView;
+  const Sim = window.SailSim, Levels = window.SailLevels, Controls = window.SailControls, Guide = window.SailGuide, V = window.SailView, Crafts = window.SailCrafts;
   const Solutions = window.SailSolutions || {};
   const $ = (id) => document.getElementById(id);
   const L = window.SailI18n, t = L.t;
@@ -11,7 +12,7 @@
   const COL = {};
   (function readPalette() {
     const cs = getComputedStyle(document.documentElement);
-    ['star', 'ring', 'goal', 'orbit', 'node', 'axis-x', 'axis-y', 'axis-z', 'sun', 'earth', 'shadow', 'ghost', 'trail', 'predict', 'sail', 'craft', 'normal', 'light', 'guide', 'pad']
+    ['star', 'ring', 'goal', 'orbit', 'node', 'axis-x', 'axis-y', 'axis-z', 'sun', 'earth', 'shadow', 'ghost', 'trail', 'predict', 'sail', 'craft', 'normal', 'light', 'guide', 'pad', 'tether', 'star-G', 'star-K', 'star-F', 'star-A', 'star-M']
       .forEach((k) => { COL[k] = cs.getPropertyValue('--c-' + k).trim() || '#888888'; });
     COL.accent = cs.getPropertyValue('--accent').trim(); COL.sunUi = cs.getPropertyValue('--sun').trim(); COL.line = cs.getPropertyValue('--line').trim(); COL.muted = cs.getPropertyValue('--muted').trim();
   })();
@@ -21,6 +22,8 @@
   }
   const lvText = (lv, k) => t('lv.' + lv.id + '.' + k);
   const unitT = (lv) => t('unit.' + lv.timeScaleLabel);
+  const G0 = 5.93; // solar gravity at 1 AU, mm/s^2, for showing sail pushes in the hangar
+  function craftName(id) { const c = Crafts.parse(id); return t('hull.' + c.hull) + ' · ' + c.mechs.map((m) => t('mech.' + m)).join(' + '); }
   const onOff = (v) => t(v ? 'on' : 'off');
 
   // interface settings, none of these touch the physics
@@ -41,12 +44,12 @@
   let W = 0, H = 0;
 
   // ---- settings and records (storage may be blocked, everything works without it) ----
-  const settings = { scheme: Controls.order[0], guide: true };
+  const settings = { scheme: Controls.order[0], guide: true, crafts: Object.assign({}, Crafts.defaults) };
   function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* ignore */ } }
   (function loadSettings() {
     const s = lsGet('sailSettings');
-    if (s) { try { const o = JSON.parse(s); if (Controls.registry[o.scheme]) settings.scheme = o.scheme; if (typeof o.guide === 'boolean') settings.guide = o.guide; } catch (e) { /* ignore */ } }
+    if (s) { try { const o = JSON.parse(s); if (Controls.registry[o.scheme]) settings.scheme = o.scheme; if (typeof o.guide === 'boolean') settings.guide = o.guide; if (o.crafts) Object.keys(Crafts.defaults).forEach((m) => { if (typeof o.crafts[m] === 'string' && Crafts.parse(o.crafts[m]).hull) settings.crafts[m] = o.crafts[m]; }); } catch (e) { /* ignore */ } }
   })();
   function saveSettings() { lsSet('sailSettings', JSON.stringify(settings)); }
   function bestKey(levelId) { return 'sailBest:' + levelId + ':' + settings.scheme; }
@@ -56,10 +59,12 @@
     const m = level.medals;
     return time <= m.gold ? 3 : time <= m.silver ? 2 : time <= m.bronze ? 1 : 0;
   }
+  // the craft this level flies with: the player's pick for the mode, or the default when the pick cannot fly here
+  function craftFor(lv) { const id = settings.crafts[lv.mode]; return Crafts.problem(id, lv) ? Crafts.defaults[lv.mode] : id; }
   function starString(n) { let s = ''; for (let i = 0; i < 3; i++) s += i < n ? '<b>★</b>' : '★'; return s; }
 
   // ---- state ----
-  let screen = 'menu', levelIdx = 0, level = Levels[0];
+  let screen = 'menu', levelIdx = 0, level = Levels[0], menuMode = 'sim', garagePick = null;
   let S = null;          // the run in progress or just finished
   let att = null;        // background demo flight
   let briefGuide = settings.guide, ghostPick = { mode: 'off' }, pastedReplay = null;
@@ -70,22 +75,24 @@
   const hashArgs = {};
   location.hash.replace(/^#/, '').split('&').forEach((kv) => { const p = kv.split('='); if (p[0]) hashArgs[p[0]] = p[1]; });
 
-  // ---- replay codes: base64 of a small JSON, format v2 ----
+  // ---- replay codes: base64 of a small JSON, format v3 with the craft; v2 codes (before crafts) fly the ideal craft ----
   function encodeReplay(run) {
-    return btoa(JSON.stringify({ v: 2, level: run.level.id, control: run.schemeId, assist: run.assisted, keys: run.keys }));
+    return btoa(JSON.stringify({ v: 3, level: run.level.id, control: run.schemeId, craft: run.craftId, assist: run.assisted, keys: run.keys }));
   }
   function decodeReplay(text) {
     const o = JSON.parse(atob(text.trim()));
-    if (o.v !== 2 || !Array.isArray(o.keys) || !Controls.registry[o.control] || !Levels.find((l) => l.id === o.level)) throw new Error('bad code');
+    const lv = Levels.find((l) => l.id === o.level);
+    if (o.v === 2) o.craft = 'photon:ideal';
+    if ((o.v !== 2 && o.v !== 3) || !Array.isArray(o.keys) || !Controls.registry[o.control] || !lv || Crafts.problem(o.craft, lv)) throw new Error('bad code');
     return o;
   }
 
   // ---- screens ----
-  const OVERLAYS = { menu: ['menu'], brief: ['brief'], play: ['hud'], pause: ['hud', 'pause'], result: ['result'], settings: ['menu', 'settings'], help: ['menu', 'help'], about: ['menu', 'about'] };
-  const TOP = { menu: 'menu', brief: 'brief', play: 'hud', pause: 'pause', result: 'result', settings: 'settings', help: 'help', about: 'about' };
+  const OVERLAYS = { menu: ['menu'], brief: ['brief'], garage: ['garage'], play: ['hud'], pause: ['hud', 'pause'], result: ['result'], settings: ['menu', 'settings'], help: ['menu', 'help'], about: ['menu', 'about'] };
+  const TOP = { menu: 'menu', brief: 'brief', garage: 'garage', play: 'hud', pause: 'pause', result: 'result', settings: 'settings', help: 'help', about: 'about' };
   function setScreen(name) {
     screen = name;
-    ['menu', 'brief', 'hud', 'pause', 'result', 'settings', 'help', 'about'].forEach((id) => $(id).classList.add('hidden'));
+    ['menu', 'brief', 'garage', 'hud', 'pause', 'result', 'settings', 'help', 'about'].forEach((id) => $(id).classList.add('hidden'));
     OVERLAYS[name].forEach((id) => $(id).classList.remove('hidden'));
     canvas.style.cursor = name === 'play' || name === 'result' ? 'grab' : 'default';
     if (name !== 'play') { const first = focusables()[0]; if (first) first.focus(); }
@@ -102,7 +109,8 @@
     list[(i + dir + list.length) % list.length].focus();
   }
   function goBack() {
-    if (screen === 'brief' || screen === 'settings' || screen === 'help' || screen === 'about' || screen === 'result') setScreen('menu');
+    if (screen === 'garage') closeGarage();
+    else if (screen === 'brief' || screen === 'settings' || screen === 'help' || screen === 'about' || screen === 'result') setScreen('menu');
     else if (screen === 'pause') resume();
     else if (screen === 'play') pause();
   }
@@ -112,6 +120,7 @@
     const box = $('levels');
     box.innerHTML = '';
     Levels.forEach((lv, i) => {
+      if (lv.mode !== menuMode) return;
       const b = document.createElement('button');
       b.className = 'card'; b.dataset.index = i;
       b.addEventListener('click', () => openBrief(i));
@@ -120,10 +129,19 @@
       box.appendChild(b);
     });
   }
+  function setMenuMode(m) {
+    if (m === menuMode) return;
+    menuMode = m; buildMenu(); refreshMenu();
+    const first = $('levels').firstElementChild;
+    if (first) attractFor(Levels[+first.dataset.index]);
+  }
+  function levelNumber(lv) { return Levels.filter((l) => l.mode === lv.mode).indexOf(lv) + 1; }
+  function levelLabel(lv) { return t(lv.mode === 'race' ? 'menu.course' : 'menu.mission', { n: levelNumber(lv) }); }
   function refreshMenu() {
-    Array.prototype.forEach.call($('levels').children, (b, i) => {
-      const lv = Levels[i], best = loadBest(lv.id);
-      b.innerHTML = '<div class="num">' + t('menu.mission', { n: i + 1 }) + '</div><div class="name">' + lvText(lv, 'name') + '</div>' +
+    Array.prototype.forEach.call($('modeTabs').children, (b) => { b.classList.toggle('on', b.dataset.mode === menuMode); b.setAttribute('aria-pressed', b.dataset.mode === menuMode); });
+    Array.prototype.forEach.call($('levels').children, (b) => {
+      const lv = Levels[+b.dataset.index], best = loadBest(lv.id);
+      b.innerHTML = '<div class="num">' + levelLabel(lv) + '</div><div class="name">' + lvText(lv, 'name') + '</div>' +
         '<div class="goal">' + lvText(lv, 'goal') + '</div>' +
         '<div class="row"><span class="tag ' + lv.difficulty + '">' + t('diff.' + lv.difficulty) + '</span>' +
         '<span class="best">' + (best ? t('menu.best', { t: best.time.toFixed(1), unit: unitT(lv) }) : t('menu.notFlown')) + '</span>' +
@@ -144,7 +162,9 @@
     $('btnLaunch').focus();
   }
   function fillBrief() {
-    $('briefNum').textContent = t('menu.mission', { n: levelIdx + 1 }) + '  ·  ' + t('diff.' + level.difficulty);
+    $('briefNum').textContent = levelLabel(level) + '  ·  ' + t('diff.' + level.difficulty);
+    $('briefFiction').classList.toggle('hidden', level.mode !== 'race');
+    $('btnBriefCraft').textContent = craftName(craftFor(level));
     $('briefName').textContent = lvText(level, 'name');
     $('briefGoal').textContent = lvText(level, 'goal');
     $('briefSteps').innerHTML = lvText(level, 'steps').map((x) => '<li>' + x + '</li>').join('');
@@ -152,10 +172,10 @@
   function ghostOptions() {
     const opts = [{ mode: 'off', label: t('ghost.off') }];
     const ref = (Solutions[level.id] || {})[settings.scheme];
-    if (ref) opts.push({ mode: 'ref', label: t('ghost.ref'), keys: ref.keys, control: settings.scheme });
+    if (ref) opts.push({ mode: 'ref', label: t('ghost.ref'), keys: ref.keys, control: settings.scheme, craft: ref.craft });
     const best = loadBest(level.id);
-    if (best && best.code) { try { const d = decodeReplay(best.code); opts.push({ mode: 'best', label: t('ghost.best'), keys: d.keys, control: d.control }); } catch (e) { /* ignore */ } }
-    if (pastedReplay && pastedReplay.level === level.id) opts.push({ mode: 'code', label: t('ghost.code'), keys: pastedReplay.keys, control: pastedReplay.control });
+    if (best && best.code) { try { const d = decodeReplay(best.code); opts.push({ mode: 'best', label: t('ghost.best'), keys: d.keys, control: d.control, craft: d.craft }); } catch (e) { /* ignore */ } }
+    if (pastedReplay && pastedReplay.level === level.id) opts.push({ mode: 'code', label: t('ghost.code'), keys: pastedReplay.keys, control: pastedReplay.control, craft: pastedReplay.craft });
     return opts;
   }
   function refreshBriefButtons() {
@@ -169,7 +189,7 @@
   function attractFor(lv) {
     if (att && att.level === lv) return;
     const ref = (Solutions[lv.id] || {}).euler;
-    att = { level: lv, schemeId: 'euler', state: Sim.createState(lv, 'euler'), keys: ref ? ref.keys : [{ t: 0, a: 0, b: 0 }], cursor: { i: 0 }, trail: [], a: 0, b: 0, wait: 0, tickDebt: 0, predicted: [], ghostState: null, ghostTrail: [] };
+    att = { level: lv, schemeId: 'euler', craftId: ref ? ref.craft : Crafts.defaults[lv.mode], state: Sim.createState(lv, 'euler', ref ? ref.craft : Crafts.defaults[lv.mode]), keys: ref ? ref.keys : [{ t: 0, a: 0, b: 0 }], cursor: { i: 0 }, trail: [], a: 0, b: 0, wait: 0, tickDebt: 0, predicted: [], ghostState: null, ghostTrail: [] };
   }
   // the demo runs on real time, so it flies at the same pace on every screen refresh rate
   function stepAttract(dt) {
@@ -192,24 +212,24 @@
 
   // ---- a run ----
   function startRun() {
-    const scheme = Controls.registry[settings.scheme];
-    const state = Sim.createState(level, settings.scheme);
+    const scheme = Controls.registry[settings.scheme], craftId = craftFor(level);
+    const state = Sim.createState(level, settings.scheme, craftId);
     S = {
-      level: level, schemeId: settings.scheme, scheme: scheme, state: state,
+      level: level, schemeId: settings.scheme, scheme: scheme, state: state, craftId: craftId,
       a: scheme.a.start, b: scheme.b.start, keys: [{ t: 0, a: scheme.a.start, b: scheme.b.start }],
       trail: [], predicted: [], tickDebt: 0, speedIdx: 1, paused: false, touched: false,
       guide: briefGuide, assisted: briefGuide, padX: 0, padY: 0,
       rMin: Infinity, rMax: 0, ghostState: null, ghostTrail: [], ghostCursor: { i: 0 }, ghost: null, autoplay: null
     };
     const opt = ghostOptions().find((o) => o.mode === ghostPick.mode);
-    if (opt && opt.keys) { S.ghost = opt; S.ghostState = Sim.createState(level, opt.control); }
+    if (opt && opt.keys) { S.ghost = opt; S.ghostState = Sim.createState(level, opt.control, opt.craft); }
     if (hashArgs.autoplay) {
       const ref = (Solutions[level.id] || {})[settings.scheme];
       if (ref) { S.autoplay = { keys: ref.keys, cursor: { i: 0 } }; S.speedIdx = CFG.autoSpeedIndex; }
     }
     vps.forEach((vp) => { vp.zoom = 1; });
     V.applyPreset(vps[0], 'iso');
-    $('lvlName').textContent = level.name;
+    $('lvlName').textContent = lvText(level, 'name');
     $('padBox').classList.add('nudge');
     refreshHudButtons();
     setScreen('play');
@@ -243,7 +263,7 @@
     const st = S.state;
     if (st.tick % 10 === 0) {
       S.trail.push([st.x, st.y, st.z]);
-      const r = Math.sqrt(st.x * st.x + st.y * st.y + st.z * st.z);
+      const o = Sim.nearest(st), r = Math.hypot(st.x - o[0], st.y - o[1], st.z - o[2]);
       if (r < S.rMin) S.rMin = r; if (r > S.rMax) S.rMax = r;
     }
     if (S.ghostState && !S.ghostState.done) {
@@ -257,10 +277,10 @@
   function predict() {
     const s = Object.assign({}, S.state);
     S.predicted = [];
-    const n = level.light === 'central' ? 500 : 700;
+    const n = level.light === 'central' ? 500 : level.light === 'stars' ? 1200 : 700, every = level.light === 'stars' ? 8 : 4;
     for (let i = 0; i < n && !s.done; i++) {
       Sim.step(s, S.a, S.b);
-      if (i % 4 === 0) S.predicted.push([s.x, s.y, s.z]);
+      if (i % every === 0) S.predicted.push([s.x, s.y, s.z]);
     }
   }
 
@@ -298,17 +318,24 @@
       stat(t('res.closest'), S.rMin === Infinity ? '-' : S.rMin.toFixed(2) + ' ' + lv.unitLen) +
       stat(t('res.farthest'), S.rMax.toFixed(2) + ' ' + lv.unitLen) +
       stat(t('res.guide'), t(S.assisted ? 'res.used' : 'res.none'));
-    $('btnNext').classList.toggle('hidden', !(ok && levelIdx + 1 < Levels.length));
+    if (lv.mode === 'race') $('resultStats').innerHTML = stat(t('res.adjust'), S.keys.length) + stat(t('res.closestStar'), S.rMin === Infinity ? '-' : S.rMin.toFixed(2) + ' ' + lv.unitLen) + stat(t('res.guide'), t(S.assisted ? 'res.used' : 'res.none'));
+    $('resultCraft').textContent = craftName(S.craftId);
+    const hasNext = levelIdx + 1 < Levels.length && Levels[levelIdx + 1].mode === lv.mode;
+    $('btnNext').classList.toggle('hidden', !(ok && hasNext));
     $('btnCopy').classList.toggle('hidden', !ok);
     vps[0].mode = 'free';
     setScreen('result');
-    const first = ok && levelIdx + 1 < Levels.length ? $('btnNext') : $('btnRetry');
+    const first = ok && hasNext ? $('btnNext') : $('btnRetry');
     first.focus();
   }
 
   // ---- HUD ----
   function progressNow() {
     const st = S.state, lv = S.level;
+    if (lv.mode === 'race') {
+      const c = lv.goal.center, r = Math.hypot(st.x - c[0], st.y - c[1], st.z - c[2]);
+      return { p: r / lv.goal.r, text: t('hud.edge'), val: r.toFixed(1) + ' / ' + lv.goal.r + ' ' + lv.unitLen };
+    }
     if (lv.goal.minInc !== undefined) {
       const inc = Sim.inclinationDeg(st), shown = inc > 90 ? 180 - inc : inc;
       return { p: shown / lv.goal.minInc, text: t('hud.tilt'), val: shown.toFixed(0) + '° / ' + lv.goal.minInc + '°' };
@@ -361,6 +388,11 @@
       pctx.fillStyle = COL.guide;
       pctx.beginPath(); pctx.arc(c + gp[0] * R, c - gp[1] * R, 13 * pulse, 0, 6.2832); pctx.fill();
     }
+    if (S.state.chord) {
+      const ap = Guide.localToPad(S.state.n1, S.state.n2, CFG.padCone);
+      pctx.strokeStyle = alpha(COL.sail, 0.9); pctx.lineWidth = 3; pctx.setLineDash([4, 4]);
+      pctx.beginPath(); pctx.arc(c + ap[0] * R, c - ap[1] * R, 17, 0, 6.2832); pctx.stroke(); pctx.setLineDash([]);
+    }
     const q = CFG.padStep, px = Math.round(S.padX / q) * q, py = Math.round(S.padY / q) * q;
     if (gp) { pctx.strokeStyle = alpha(COL.craft, 0.3); pctx.lineWidth = 2; pctx.beginPath(); pctx.moveTo(c + px * R, c - py * R); pctx.lineTo(c + gp[0] * R, c - gp[1] * R); pctx.stroke(); }
     pctx.fillStyle = COL.craft; pctx.strokeStyle = COL.accent; pctx.lineWidth = 3;
@@ -396,12 +428,34 @@
     const me = [st.x, st.y, st.z], h = Guide.orbitNormal(st);
     let l;
     if (lv.light === 'external') l = [st.lx, st.ly, st.lz];
+    else if (lv.light === 'stars') { const F = Sim.frame(st, {}); l = [F.lx, F.ly, F.lz]; }
     else { const r = Math.hypot(st.x, st.y, st.z) || 1; l = [st.x / r, st.y / r, st.z / r]; }
     V.updateDynamic(vp, h, l);
-    V.prep(vp, span, vp.follow ? me : [0, 0, 0]);
+    V.prep(vp, span, vp.follow ? me : (lv.view.center || [0, 0, 0]));
     ctx.save();
     ctx.beginPath(); ctx.rect(R.x, R.y, R.w, R.h); ctx.clip();
 
+    const X = [1, 0, 0], Y = [0, 1, 0], Zv = [0, 0, 1], O = [0, 0, 0];
+    if (lv.light === 'stars') drawCourse(vp, sc, opts, span);
+    else drawSystem(vp, sc, opts, span, me, h, l);
+    V.polyline(ctx, vp, sc.ghostTrail || [], COL.ghost, 1.5);
+    V.polyline(ctx, vp, sc.trail, COL.trail, 2);
+    if (opts.predict) V.polyline(ctx, vp, sc.predicted, alpha(COL.predict, 0.75), 1.5, [5, 5]);
+    if (sc.ghostState) V.disc(ctx, vp, [sc.ghostState.x, sc.ghostState.y, sc.ghostState.z], span * 0.012, COL.ghost, 4);
+    drawCraft(vp, st, span, me, l);
+
+    if (opts.split) {
+      ctx.fillStyle = COL.muted; ctx.font = '500 14px "IBM Plex Sans", system-ui, sans-serif';
+      const p = V.PRESETS.find((pp) => pp.id === vp.mode);
+      ctx.fillText(t(p ? 'view.' + p.id : 'view.free') + (vp.follow ? t('view.following') : ''), R.x + 12, R.y + R.h - 12);
+    }
+    ctx.restore();
+    if (opts.split) { ctx.strokeStyle = idx === active ? COL.sunUi : COL.line; ctx.lineWidth = idx === active ? 2 : 1; ctx.strokeRect(R.x + 0.5, R.y + 0.5, R.w - 1, R.h - 1); }
+  }
+
+  // a single central body: the Sun, or the Earth with its shadow
+  function drawSystem(vp, sc, opts, span, me, h, l) {
+    const lv = sc.level, st = sc.state;
     const X = [1, 0, 0], Y = [0, 1, 0], Zv = [0, 0, 1], O = [0, 0, 0];
     const rings = lv.light === 'central' ? (lv.goal.minInc === undefined ? [1, lv.goal.rMin] : [1]) : [lv.goal.rMin, 7, lv.goal.rMax];
     rings.forEach((r, i) => V.polyline(ctx, vp, V.circlePoints(O, r, X, Y, 96), (lv.goal.minInc === undefined && i === 1) ? alpha(COL.goal, 0.8) : COL.ring, (lv.goal.minInc === undefined && i === 1) ? 2 : 1));
@@ -434,29 +488,47 @@
       V.polyline(ctx, vp, a0, alpha(COL.shadow, 0.45), 1); V.polyline(ctx, vp, a1, alpha(COL.shadow, 0.2), 1);
       for (let i = 0; i < 24; i += 6) V.segment(ctx, vp, a0[i], a1[i], alpha(COL.shadow, 0.2), 1);
     }
+  }
 
-    V.polyline(ctx, vp, sc.ghostTrail || [], COL.ghost, 1.5);
-    V.polyline(ctx, vp, sc.trail, COL.trail, 2);
-    if (opts.predict) V.polyline(ctx, vp, sc.predicted, alpha(COL.predict, 0.75), 1.5, [5, 5]);
-    if (sc.ghostState) V.disc(ctx, vp, [sc.ghostState.x, sc.ghostState.y, sc.ghostState.z], span * 0.012, COL.ghost, 4);
+  // race field: the boundary sphere (finish line, drawn as three great circles), the stars with a glow that grows with
+  // their light and their overheating ring
+  function drawCourse(vp, sc, opts, span) {
+    const lv = sc.level, X = [1, 0, 0], Y = [0, 1, 0], Zv = [0, 0, 1], c = lv.goal.center, R = lv.goal.r;
+    V.polyline(ctx, vp, V.circlePoints(c, R, X, Y, 128), alpha(COL.goal, 0.85), 2, [8, 6]);
+    V.polyline(ctx, vp, V.circlePoints(c, R, X, Zv, 96), alpha(COL.goal, 0.3), 1, [4, 6]);
+    V.polyline(ctx, vp, V.circlePoints(c, R, Y, Zv, 96), alpha(COL.goal, 0.3), 1, [4, 6]);
+    V.disc(ctx, vp, lv.start.pos, span * 0.006, alpha(COL.goal, 0.7), 2);
+    lv.stars.forEach((s) => {
+      const col = COL['star-' + s.type] || COL.sun, c0 = V.project(vp, s.pos), glow = 14 + 16 * Math.pow(s.lum, 0.3);
+      if (c0) {
+        const g = ctx.createRadialGradient(c0[0], c0[1], 1, c0[0], c0[1], glow * c0[2]);
+        g.addColorStop(0, alpha(col, 0.5)); g.addColorStop(1, alpha(col, 0));
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(c0[0], c0[1], glow * c0[2], 0, 6.2832); ctx.fill();
+      }
+      V.disc(ctx, vp, s.pos, span * 0.012 * Math.pow(s.mass, 0.5), col, 2.5);
+      V.polyline(ctx, vp, V.circlePoints(s.pos, s.rMin, X, Y, 32), alpha(COL.normal, 0.35), 1, [3, 4]);
+    });
+  }
 
-    // the sail
-    const nrm = Sim.sailNormal(st, sc.a, sc.b, {}), n = [nrm.x, nrm.y, nrm.z];
+  // the craft: a film square, tethers for an electric sail, both for a hybrid; the red line is the real sail normal
+  function drawCraft(vp, st, span, me, l) {
+    const X = [1, 0, 0], Zv = [0, 0, 1];
+    const nrm = Sim.actualNormal(st, {}), n = [nrm.x, nrm.y, nrm.z];
     const ref = Math.abs(n[2]) < 0.9 ? Zv : X, s1 = V.norm(V.cross(n, ref)), s2 = V.cross(n, s1), q = span * 0.045;
-    const corners = [[1, 1], [1, -1], [-1, -1], [-1, 1]].map((c) => V.add(V.add(me, s1, c[0] * q), s2, c[1] * q));
-    fillPoly(vp, corners, alpha(COL.sail, 0.45));
-    V.polyline(ctx, vp, corners.concat([corners[0]]), COL.sail, 1.5);
+    if (st.craft.beta > 0) {
+      const corners = [[1, 1], [1, -1], [-1, -1], [-1, 1]].map((c) => V.add(V.add(me, s1, c[0] * q), s2, c[1] * q));
+      fillPoly(vp, corners, alpha(COL.sail, 0.45));
+      V.polyline(ctx, vp, corners.concat([corners[0]]), COL.sail, 1.5);
+    }
+    if (st.craft.kappa > 0) {
+      for (let i = 0; i < 12; i++) {
+        const a = i / 12 * 6.2832, d = V.add(V.add([0, 0, 0], s1, Math.cos(a)), s2, Math.sin(a));
+        V.segment(ctx, vp, me, V.add(me, d, q * 2.2), alpha(COL.tether, 0.8), 1);
+      }
+    }
     V.disc(ctx, vp, me, span * 0.009, COL.craft, 3);
     V.segment(ctx, vp, me, V.add(me, n, span * 0.13), COL.normal, 2.5);
     V.segment(ctx, vp, me, V.add(me, l, -span * 0.13), COL.light, 2);
-
-    if (opts.split) {
-      ctx.fillStyle = COL.muted; ctx.font = '500 14px "IBM Plex Sans", system-ui, sans-serif';
-      const p = V.PRESETS.find((pp) => pp.id === vp.mode);
-      ctx.fillText(t(p ? 'view.' + p.id : 'view.free') + (vp.follow ? t('view.following') : ''), R.x + 12, R.y + R.h - 12);
-    }
-    ctx.restore();
-    if (opts.split) { ctx.strokeStyle = idx === active ? COL.sunUi : COL.line; ctx.lineWidth = idx === active ? 2 : 1; ctx.strokeRect(R.x + 0.5, R.y + 0.5, R.w - 1, R.h - 1); }
   }
 
   function drawScene(sc, layoutName, opts) {
@@ -557,6 +629,64 @@
     if (dir) moveFocus(dir);
   }
 
+  // ---- hangar: pick the sail and the attitude mechanisms before a launch ----
+  function openGarage() {
+    garagePick = Crafts.parse(craftFor(level));
+    fillGarage();
+    setScreen('garage');
+  }
+  function closeGarage() {
+    settings.crafts[level.mode] = Crafts.idOf(garagePick.hull, garagePick.mechs);
+    saveSettings();
+    setScreen('brief');
+    fillBrief();
+    $('btnBriefCraft').focus();
+  }
+  function fillGarage() {
+    const pick = garagePick, hb = $('garageHulls'), mb = $('garageMechs');
+    hb.innerHTML = ''; mb.innerHTML = '';
+    Crafts.hullOrder.forEach((h) => {
+      if (Crafts.hulls[h].modes.indexOf(level.mode) < 0) return;
+      const b = document.createElement('button');
+      const why = Crafts.problem(Crafts.idOf(h, [Crafts.hulls[h].mechs[0]]), level);
+      b.className = 'btn small' + (pick.hull === h ? ' on' : ''); b.textContent = t('hull.' + h); b.disabled = !!why;
+      if (why) b.title = t('garage.' + why);
+      b.addEventListener('click', () => {
+        if (pick.hull === h) return;
+        pick.hull = h;
+        const allowed = Crafts.hulls[h].mechs;
+        pick.mechs = pick.mechs.filter((m) => allowed.indexOf(m) >= 0);
+        if (!pick.mechs.length) pick.mechs = [allowed[0]];
+        fillGarage(); hb.querySelector('.on').focus();
+      });
+      hb.appendChild(b);
+    });
+    Crafts.hulls[pick.hull].mechs.forEach((m) => {
+      const b = document.createElement('button'), on = pick.mechs.indexOf(m) >= 0;
+      b.className = 'btn small' + (on ? ' on' : ''); b.textContent = t('mech.' + m); b.title = t('mech.' + m + '.d');
+      b.setAttribute('aria-pressed', on);
+      b.addEventListener('click', () => {
+        const i = pick.mechs.indexOf(m);
+        if (i >= 0) { if (pick.mechs.length > 1) pick.mechs.splice(i, 1); } else pick.mechs.push(m);
+        pick.mechs.sort((x, y) => Crafts.hulls[pick.hull].mechs.indexOf(x) - Crafts.hulls[pick.hull].mechs.indexOf(y));
+        fillGarage(); mb.children[Crafts.hulls[pick.hull].mechs.indexOf(m)].focus();
+      });
+      mb.appendChild(b);
+    });
+    const d = Crafts.derive(Crafts.idOf(pick.hull, pick.mechs), level);
+    const push = [];
+    if (d.beta > 0) push.push((d.beta * G0).toFixed(2) + ' mm/s²');
+    if (d.kappa > 0) push.push((d.kappa * G0).toFixed(2) + ' mm/s²');
+    const fall = d.beta > 0 && d.kappa > 0 ? t('garage.r2r1') : d.beta > 0 ? t('garage.r2') : t('garage.r1');
+    const row = (k, v) => '<tr><td>' + k + '</td><td>' + v + '</td></tr>';
+    $('garageStats').innerHTML = row(t('garage.thrust'), push.join(' + ')) + row(t('garage.falloff'), fall) +
+      row(t('garage.turn'), d.ratePerHour + ' °/h') + row(t('garage.mass'), '+' + Math.round(d.mass * 100) + '%');
+    $('garageDesc').innerHTML = '<b>' + t('hull.' + pick.hull) + '</b> ' + t('hull.' + pick.hull + '.d') + '<br>' +
+      pick.mechs.map((m) => '<b>' + t('mech.' + m) + '</b> ' + t('mech.' + m + '.d')).join('<br>');
+    const blocked = Crafts.hullOrder.filter((h) => Crafts.hulls[h].modes.indexOf(level.mode) >= 0 && Crafts.problem(Crafts.idOf(h, [Crafts.hulls[h].mechs[0]]), level) === 'noWind');
+    $('garageWarn').textContent = blocked.length ? t('garage.noWind') : '';
+  }
+
   // ---- view controls ----
   function cyclePreset(d) {
     const ids = V.PRESETS.map((p) => p.id), vp = vps[active];
@@ -569,6 +699,7 @@
   function changeSpeed(d) { S.speedIdx = Math.max(0, Math.min(CFG.speeds.length - 1, S.speedIdx + d)); }
 
   // ---- wiring ----
+  Array.prototype.forEach.call($('modeTabs').children, (b) => b.addEventListener('click', () => setMenuMode(b.dataset.mode)));
   buildMenu();
   V.PRESETS.forEach((p) => {
     const b = document.createElement('button');
@@ -592,6 +723,7 @@
     $('btnDefGuide').textContent = onOff(settings.guide);
     refreshMenu();
     if (screen === 'brief') { fillBrief(); refreshBriefButtons(); }
+    if (screen === 'garage') fillGarage();
   }
 
   $('btnHelp').addEventListener('click', () => setScreen('help'));
@@ -603,12 +735,14 @@
   $('selScheme').addEventListener('change', (e) => { settings.scheme = e.target.value; saveSettings(); });
   $('btnDefGuide').addEventListener('click', () => { settings.guide = !settings.guide; saveSettings(); $('btnDefGuide').textContent = onOff(settings.guide); $('btnDefGuide').classList.toggle('on', settings.guide); });
   $('btnGhostCode').addEventListener('click', () => {
-    const t = window.prompt(t('prompt.paste'));
-    if (!t) return;
-    try { pastedReplay = decodeReplay(t); openBrief(Levels.findIndex((l) => l.id === pastedReplay.level)); ghostPick = { mode: 'code' }; refreshBriefButtons(); }
+    const code = window.prompt(t('prompt.paste'));
+    if (!code) return;
+    try { pastedReplay = decodeReplay(code); const i = Levels.findIndex((l) => l.id === pastedReplay.level); setMenuMode(Levels[i].mode); openBrief(i); ghostPick = { mode: 'code' }; refreshBriefButtons(); }
     catch (e) { window.alert(t('prompt.bad')); }
   });
   $('btnBriefBack').addEventListener('click', () => setScreen('menu'));
+  $('btnBriefCraft').addEventListener('click', openGarage);
+  $('btnGarageDone').addEventListener('click', closeGarage);
   $('btnBriefGuide').addEventListener('click', () => { briefGuide = !briefGuide; refreshBriefButtons(); });
   $('btnBriefGhost').addEventListener('click', () => {
     const opts = ghostOptions(), i = Math.max(0, opts.findIndex((o) => o.mode === ghostPick.mode));
@@ -705,14 +839,17 @@
   document.querySelectorAll('.ver').forEach((el) => { el.textContent = document.documentElement.dataset.version; });
   L.setLang(hashArgs.lang || L.detect(), false);
   relabel();
-  const startLevelIdx = Math.max(0, Levels.findIndex((l) => l.id === hashArgs.level));
+  let startLevelIdx = Math.max(0, Levels.findIndex((l) => l.id === hashArgs.level));
+  if (hashArgs.mode === 'race' && Levels[startLevelIdx].mode !== 'race') startLevelIdx = Levels.findIndex((l) => l.mode === 'race');
   level = Levels[startLevelIdx]; levelIdx = startLevelIdx;
+  if (level.mode === 'race') setMenuMode('race');
   attractFor(level);
   setScreen('menu');
   if (hashArgs.screen === 'brief' || hashArgs.autoplay) openBrief(startLevelIdx);
   if (hashArgs.screen === 'settings') setScreen('settings');
   if (hashArgs.screen === 'help') setScreen('help');
   if (hashArgs.screen === 'about') setScreen('about');
+  if (hashArgs.screen === 'garage') { openBrief(startLevelIdx); openGarage(); }
   if (hashArgs.autoplay) startRun();
   requestAnimationFrame(frame);
 })();

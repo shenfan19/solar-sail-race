@@ -4,11 +4,16 @@ By Fan Shen and Jiafu Liu.
 
 The Chinese name comes from the Book of Songs (詩經), *Wei Feng, He Guang*: 誰謂河廣？一葦杭之. Who says the river is wide? A single reed can cross it.
 
-A non-real-time racing game about solar sails. Gravity pulls the sail toward the central body, light pushes it away, and the path between the two decides the score. Pausing and slowing down are free, so the race is about the trajectory, not about reflexes.
+A non-real-time racing game about solar sails and electric sails. Gravity pulls the craft toward a star or planet, light or the stellar wind pushes it away, and the path between the two decides the score. Pausing and slowing down are free, so the race is about the trajectory, not about reflexes.
 
-Status: first prototype, three missions.
+Status: prototype, three missions and three star fields.
 
 Play online: https://shenfan19.github.io/solar-sail-race/
+
+## Modes
+
+- Missions: real parameters, one central body.
+- Star race: fiction on purpose. A field of fixed stars about ten thousand times denser than the real neighbourhood of the Sun. Gravity, light pressure and the stellar wind keep their real laws and strengths, so pull and push grow together. Start in the middle of the field and cross the boundary sphere anywhere; the shortest time wins. The field is a flattened disc, as the Galaxy is a thin disc, so the race is in three dimensions.
 
 ## Missions
 
@@ -18,7 +23,32 @@ Play online: https://shenfan19.github.io/solar-sail-race/
 | Solar polar orbit | Sun, radial light, 1 AU start | Orbit inclination at least 75 degrees |
 | Earth polar orbit | Sun as external light that turns once a year, Earth shadow | Orbit inclination at least 80 degrees |
 
-Each mission has a briefing, a pilot guide, a three-star rating from the finish time, and a results screen. Runs can be raced against the reference pilot, your own best, or a pasted replay code.
+| Star field | Stars | Boundary | Start |
+|---|---|---|---|
+| Near field | 24, mostly red dwarfs, one A star | 11 AU | drifting |
+| Young cluster | 40, with three A stars, five F stars and six Sun-like stars | 15 AU | drifting |
+| Deep field | 60, mostly dim | 17 AU | at rest |
+
+Star types (`js/levels.js`): M, K, G, F and A, each with a mass, luminosity and wind strength. Light against gravity scales as luminosity over mass, so a red dwarf barely pushes a film sail while an A star pushes it away harder than it pulls. The ring around each star where the film would overheat is 0.2 AU around a Sun-like star scaled by the square root of the luminosity, and at least 0.1 AU. Fields are generated from a seed with integer arithmetic, so the layout is identical in every browser.
+
+Each mission and star field has a briefing, a pilot guide, a three-star rating from the finish time, and a results screen. Runs can be raced against the reference pilot, your own best, or a pasted replay code.
+
+## Crafts
+
+The hangar, opened from the briefing, combines a sail with one or more attitude control mechanisms. Data in `js/crafts.js`, force laws in `js/sim.js`.
+
+| Sail | Force law |
+|---|---|
+| Solar sail | Ideal flat reflector, push along the sail normal, size cos² of the angle to the light, fades as 1/r² |
+| Electric sail | Charged tethers in the spin plane feel the wind component across them; push (u + (u·n) n) / 2, fades as 1/r, tilts at most about 18 degrees from the wind; not available inside the Earth's magnetosphere |
+| Hybrid sail | Both on one frame, star race only |
+
+| Mechanism | Sail |
+|---|---|
+| Gimbaled boom, tip vanes, sliding mass, reflectivity control | Solar sail, hybrid |
+| Tether voltage, tip thruster units | Electric sail, hybrid |
+
+Each mechanism limits how fast the real sail normal follows the pad and adds mass, which weakens every push. Combined mechanisms add their turn rates and their masses. Turn rates and masses are game settings ranked by how fast each mechanism turns a real sail, not mission data. When a mechanism lags, a dashed ring on the pad shows where the sail really points.
 
 ## Languages
 
@@ -42,18 +72,19 @@ The pad can drive any control scheme in `js/controls.js`. A scheme only decides 
 
 ## Replays
 
-Every run is stored as piecewise constant keyframes `{t, a, b}` for the chosen scheme. A replay code is the base64 of `{v: 2, level, control, assist, keys}`. Scores are computed by re-simulating the replay, never taken from the player.
+Every run is stored as piecewise constant keyframes `{t, a, b}` for the chosen scheme. A replay code is the base64 of `{v: 3, level, control, craft, assist, keys}`; `craft` is an id such as `photon:vane+mass`. Codes of format v2, recorded before crafts existed, replay with instant turning. Scores are computed by re-simulating the replay, never taken from the player.
 
 ## Run
 
 Open `index.html` in a browser. No build step. Fonts load from Google Fonts when online and fall back to system fonts.
 
 ```
-node tools/autopilot.js          # generate reference solutions
+node tools/autopilot.js          # generate reference solutions with the default craft
+node tools/autopilot.js --survey # fly every craft on every mission and star field
 node tools/verify.js solutions/earth-polar_euler.json
 ```
 
-Deep links: `index.html#level=earth-polar`, `#screen=settings`, `#lang=ja`, `#autoplay=1` flies the reference solution and shows the results screen.
+Deep links: `index.html#level=earth-polar`, `#mode=race`, `#screen=settings`, `#screen=garage`, `#lang=ja`, `#autoplay=1` flies the reference solution and shows the results screen.
 
 ## Determinism
 

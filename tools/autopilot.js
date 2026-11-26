@@ -1,6 +1,8 @@
 // Reference solutions for the shipped levels, one per control scheme. Not part of the game: it proves the
 // levels are solvable, produces replays for the ghost, and gives verify.js something to check.
+// Reference solutions are flown with the default craft of the level's mode (crafts.js defaults).
 // usage: node tools/autopilot.js [levelId]    writes solutions/<level>_<scheme>.json and js/solutions.js
+//        node tools/autopilot.js --survey      flies every allowed craft on every level and prints the times
 'use strict';
 const fs = require('fs');
 const path = require('path');
@@ -8,10 +10,33 @@ const Sim = require('../js/sim.js');
 const Controls = require('../js/controls.js');
 const levels = require('../js/levels.js');
 const Guide = require('../js/guide.js');
+const Crafts = require('../js/crafts.js');
 
-function solve(level, schemeId) {
+// Race fields: the reference pilot tries a few headings and guide settings (aim speed and lag) and keeps the fastest finish.
+// Orbit tilting: the reference pilot also tries a few lean cones, because slow mechanisms do better with another one.
+function better(a, b) { return !a || (b.status === 'success' && (a.status !== 'success' || b.ticks < a.ticks)) ? b : a; }
+function solve(level, schemeId, craftId) {
+  if (level.autopilot.law === 'incline') {
+    let best = null;
+    for (const c of [0, 25, 30, 35, 40, 45, 50]) {
+      const lv = Object.assign({}, level, { autopilot: Object.assign({}, level.autopilot, { tryCone: c || undefined }) });
+      best = better(best, solveOnce(lv, schemeId, craftId));
+    }
+    return best;
+  }
+  if (level.autopilot.law !== 'escape') return solveOnce(level, schemeId, craftId);
+  let best = null;
+  for (const heading of [undefined, 0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330])
+    for (const speed of [0.02, 0.04, 0.06]) for (const lag of [30, 60, 120]) {
+      const lv = Object.assign({}, level, { guideSpeed: speed, guideLag: lag, autopilot: Object.assign({}, level.autopilot, { heading: heading }) });
+      best = better(best, solveOnce(lv, schemeId, craftId));
+    }
+  return best;
+}
+
+function solveOnce(level, schemeId, craftId) {
   const opt = level.autopilot, scheme = Controls.registry[schemeId], every = 10;
-  const s = Sim.createState(level, schemeId);
+  const s = Sim.createState(level, schemeId, craftId);
   const keys = [];
   let cur = null;
   while (!s.done) {
@@ -25,7 +50,21 @@ function solve(level, schemeId) {
   return { keys, status: s.done, ticks: s.tick };
 }
 
-if (require.main === module) {
+function allCrafts(level) {
+  const out = [];
+  for (const h of Crafts.hullOrder) for (const m of Crafts.hulls[h].mechs) {
+    const id = Crafts.idOf(h, [m]);
+    if (!Crafts.problem(id, level)) out.push(id);
+  }
+  return out;
+}
+
+if (require.main === module && process.argv[2] === '--survey') {
+  for (const lv of levels) for (const id of allCrafts(lv)) {
+    const r = solve(lv, 'cone-clock', id);
+    console.log(lv.id.padEnd(12), id.padEnd(18), r.status.padEnd(8), (r.ticks * lv.dt).toFixed(1), lv.timeScaleLabel, 'keys', r.keys.length);
+  }
+} else if (require.main === module) {
   const want = process.argv[2];
   const out = path.join(__dirname, '..', 'solutions');
   fs.mkdirSync(out, { recursive: true });
@@ -34,14 +73,15 @@ if (require.main === module) {
     if (want && lv.id !== want) continue;
     all[lv.id] = {};
     for (const id of Controls.order) {
-      const r = solve(lv, id);
-      const check = Sim.runReplay(lv, r.keys, id);
+      const craft = Crafts.defaults[lv.mode];
+      const r = solve(lv, id, craft);
+      const check = Sim.runReplay(lv, r.keys, id, craft);
       console.log(lv.id, id, r.status, 'time', (r.ticks * lv.dt).toFixed(1), lv.timeScaleLabel, 'keys', r.keys.length,
         'replay', check.status, check.ticks === r.ticks ? 'same' : 'DIFFERENT');
       if (r.status === 'success' && check.ticks === r.ticks) {
         fs.writeFileSync(path.join(out, lv.id + '_' + id + '.json'),
-          JSON.stringify({ v: 2, level: lv.id, control: id, keys: r.keys }));
-        all[lv.id][id] = { ticks: check.ticks, keys: r.keys };
+          JSON.stringify({ v: 3, level: lv.id, control: id, craft: craft, keys: r.keys }));
+        all[lv.id][id] = { ticks: check.ticks, craft: craft, keys: r.keys };
       }
     }
   }
