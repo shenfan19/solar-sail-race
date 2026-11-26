@@ -2,6 +2,19 @@
 // items: one list per language; a language without its own list shows the English one.
 window.SailChangelog = [
   {
+    v: '0.4.1', date: '2026-11-25', items: {
+      en: ['The results window can be closed to look at the finished flight: the camera turns and zooms, and a burnt sail shows where it happened. One button or Esc brings the results back.', 'Fixed: a burnt sail in the star race now says it overheated, and the flight bar shows the final time after the results.'],
+      'zh-CN': ['结果窗口可以关闭，查看飞完或失控的现场：视角可旋转缩放，帆烧毁时标出出事位置和那颗星的过热圈。一个按钮或 Esc 回到结果。', '修正：星际竞速里帆烧毁时，提示说明是过热烧毁；关掉结果后飞行栏显示最终时间。'],
+      'zh-TW': ['結果視窗可以關閉，查看飛完或失控的現場：視角可旋轉縮放，帆燒毀時標出出事位置和那顆星的過熱圈。一個按鈕或 Esc 回到結果。', '修正：星際競速裡帆燒毀時，提示說明是過熱燒毀；關掉結果後飛行欄顯示最終時間。'],
+      ja: ['結果ウィンドウを閉じて、終わった飛行や失敗の現場を見られます。視点の回転・ズームができ、帆が焼けた場合はその場所と星の過熱圏を示します。ボタンか Esc で結果に戻ります。', '修正：スターレースで帆が焼けたときは過熱と表示し、結果を閉じた後の飛行バーに最終時間を表示します。'],
+      ko: ['결과 창을 닫고 끝난 비행이나 실패 현장을 볼 수 있습니다. 시점 회전과 확대가 되고, 돛이 타 버린 경우 위치와 그 별의 과열 고리를 표시합니다. 버튼이나 Esc로 결과로 돌아갑니다.', '수정: 항성 레이스에서 돛이 타면 과열이라고 알려 주고, 결과를 닫은 뒤 비행 막대에 최종 시간을 표시합니다.'],
+      fr: ['La fenêtre des résultats se ferme pour examiner le vol terminé : la caméra tourne et zoome, et une voile brûlée montre l\'endroit et l\'anneau de surchauffe en cause. Un bouton ou Échap ramène les résultats.', 'Corrigé : une voile brûlée en course stellaire indique la surchauffe, et la barre de vol affiche le temps final après les résultats.'],
+      de: ['Das Ergebnisfenster lässt sich schließen, um den beendeten Flug anzusehen: Die Kamera dreht und zoomt, ein verbranntes Segel zeigt Ort und Überhitzungsring. Ein Knopf oder Esc holt das Ergebnis zurück.', 'Behoben: Ein verbranntes Segel im Sternrennen meldet Überhitzung, und die Flugleiste zeigt nach dem Ergebnis die Endzeit.'],
+      es: ['La ventana de resultados se puede cerrar para ver el vuelo terminado: la cámara gira y hace zoom, y una vela quemada muestra dónde ocurrió y el anillo de sobrecalentamiento. Un botón o Esc vuelve a los resultados.', 'Corregido: una vela quemada en la carrera estelar indica el sobrecalentamiento, y la barra de vuelo muestra el tiempo final tras los resultados.'],
+      ru: ['Окно итогов можно закрыть и осмотреть завершённый полёт: камера вращается и масштабируется, у сгоревшего паруса отмечено место и зона перегрева звезды. Кнопка или Esc возвращают итоги.', 'Исправлено: сгоревший парус в звёздной гонке сообщает о перегреве, а панель полёта после итогов показывает итоговое время.']
+    }
+  },
+  {
     v: '0.4.0', date: '2026-11-25', items: {
       en: ['Pause stops only the clock. The scene stays in view, the camera still turns and zooms, and the sail can be set while paused. Leaving the page no longer pauses. Restart and menu buttons sit in the flight bar.', 'Lock 2D, in the briefing of the warm-up mission and the star races: the sail only leans forward and back, so the flight never leaves the plane. Flat star fields have their own layout, medal times, records and reference ghost.', 'Changelog, author affiliations and emails in About.'],
       'zh-CN': ['暂停只停时钟：画面保留，暂停时仍可旋转缩放视角、调整帆面。离开页面不再自动暂停。重来和菜单按钮放进飞行界面右下角。', '锁定 2D：在热身任务与星际竞速的简报里开启，帆只能前后倾，飞行始终不离开平面。平面星场有自己的星位、奖牌线、纪录与参考幽灵。', '关于页加入更新记录，以及两位作者的单位与邮箱。'],

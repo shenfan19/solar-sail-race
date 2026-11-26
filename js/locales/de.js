@@ -167,5 +167,8 @@ SailI18n.register('de', {
   "about.changes": "Änderungsprotokoll",
   "brief.flat": "2D",
   "brief.flatRow": "2D sperren",
-  "help.l5": "Pause hält nur die Uhr an: Kamera und Segel bleiben bedienbar. 2D sperren im Briefing hält den Flug in seiner Ebene; das Feld neigt sich dann nur vor und zurück."
+  "help.l5": "Pause hält nur die Uhr an: Kamera und Segel bleiben bedienbar. 2D sperren im Briefing hält den Flug in seiner Ebene; das Feld neigt sich dann nur vor und zurück.",
+  "res.inspect": "Flug ansehen",
+  "res.back": "Ergebnis",
+  "res.msgBurn": "Das Segel geriet in den Überhitzungsring eines Sterns und verbrannte. Schließe dieses Fenster, um die Stelle zu sehen, und halte beim nächsten Mal mehr Abstand."
 });

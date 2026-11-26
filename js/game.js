@@ -94,13 +94,14 @@
   }
 
   // ---- screens ----
-  const OVERLAYS = { menu: ['menu'], brief: ['brief'], garage: ['garage'], play: ['hud'], result: ['result'], settings: ['menu', 'settings'], help: ['menu', 'help'], about: ['menu', 'about'] };
-  const TOP = { menu: 'menu', brief: 'brief', garage: 'garage', play: 'hud', result: 'result', settings: 'settings', help: 'help', about: 'about' };
+  const OVERLAYS = { menu: ['menu'], brief: ['brief'], garage: ['garage'], play: ['hud'], inspect: ['hud'], result: ['result'], settings: ['menu', 'settings'], help: ['menu', 'help'], about: ['menu', 'about'] };
+  const TOP = { menu: 'menu', brief: 'brief', garage: 'garage', play: 'hud', inspect: 'hud', result: 'result', settings: 'settings', help: 'help', about: 'about' };
   function setScreen(name) {
     screen = name;
     ['menu', 'brief', 'garage', 'hud', 'result', 'settings', 'help', 'about'].forEach((id) => $(id).classList.add('hidden'));
     OVERLAYS[name].forEach((id) => $(id).classList.remove('hidden'));
-    canvas.style.cursor = name === 'play' || name === 'result' ? 'grab' : 'default';
+    canvas.style.cursor = name === 'play' || name === 'inspect' || name === 'result' ? 'grab' : 'default';
+    $('hud').classList.toggle('inspect', name === 'inspect');
     if (name !== 'play') { const first = focusables()[0]; if (first) first.focus(); }
     if (name === 'menu') refreshMenu();
   }
@@ -118,6 +119,7 @@
     if (screen === 'garage') closeGarage();
     else if (screen === 'brief' || screen === 'settings' || screen === 'help' || screen === 'about' || screen === 'result') setScreen('menu');
     else if (screen === 'play') togglePause();
+    else if (screen === 'inspect') setScreen('result');
   }
 
   // ---- menu ----
@@ -323,7 +325,7 @@
     $('resultUnit').textContent = unit;
     $('resultBanner').innerHTML = record ? '<span class="banner">' + t('res.record') + '</span>' : '';
     let msg;
-    if (!ok) msg = t(st.done === 'fail' ? 'res.msgFail' : 'res.msgTime');
+    if (!ok) msg = t(st.done !== 'fail' ? 'res.msgTime' : lv.mode === 'race' ? 'res.msgBurn' : 'res.msgFail');
     else if (stars === 3) msg = t('res.msg3');
     else if (stars === 2) msg = t('res.msg2', { n: m.gold, unit: unit });
     else if (stars === 1) msg = t('res.msg1', { n: m.silver, unit: unit });
@@ -336,6 +338,7 @@
       stat(t('res.farthest'), S.rMax.toFixed(2) + ' ' + lv.unitLen) +
       stat(t('res.guide'), t(S.assisted ? 'res.used' : 'res.none'));
     if (lv.mode === 'race') $('resultStats').innerHTML = stat(t('res.adjust'), S.keys.length) + stat(t('res.closestStar'), S.rMin === Infinity ? '-' : S.rMin.toFixed(2) + ' ' + lv.unitLen) + stat(t('res.guide'), t(S.assisted ? 'res.used' : 'res.none'));
+    updateHud(); // the flight bar shows the final state when the results are closed to look at the flight
     $('resultCraft').textContent = craftName(S.craftId) + (lv.flat ? ' · ' + t('brief.flat') : '');
     const hasNext = levelIdx + 1 < Levels.length && Levels[levelIdx + 1].mode === lv.mode;
     $('btnNext').classList.toggle('hidden', !(ok && hasNext));
@@ -526,6 +529,19 @@
       V.disc(ctx, vp, s.pos, span * 0.012 * Math.pow(s.mass, 0.5), col, 2.5);
       V.polyline(ctx, vp, V.circlePoints(s.pos, s.rMin, X, Y, 32), alpha(COL.normal, 0.35), 1, [3, 4]);
     });
+    // a burnt sail: mark where it happened and the overheating sphere it entered
+    const st = sc.state;
+    if (st.done === 'fail') {
+      const q = V.project(vp, [st.x, st.y, st.z]);
+      if (q) { ctx.strokeStyle = COL.normal; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(q[0], q[1], 18, 0, 6.2832); ctx.stroke(); }
+    }
+    if (st.done === 'fail') lv.stars.forEach((s) => {
+      const d = Math.hypot(st.x - s.pos[0], st.y - s.pos[1], st.z - s.pos[2]);
+      if (d >= s.rMin) return;
+      V.polyline(ctx, vp, V.circlePoints(s.pos, s.rMin, X, Y, 48), COL.normal, 2.5);
+      V.polyline(ctx, vp, V.circlePoints(s.pos, s.rMin, X, Zv, 48), COL.normal, 1.5);
+      V.polyline(ctx, vp, V.circlePoints(s.pos, s.rMin, Y, Zv, 48), COL.normal, 1.5);
+    });
   }
 
   // the craft: a film square, tethers for an electric sail, both for a hybrid; the red line is the real sail normal
@@ -563,6 +579,8 @@
     ctx.globalAlpha = 1;
     if (screen === 'play') {
       drawScene(S, layout, { guide: S.guide, predict: true });
+    } else if (screen === 'inspect') {
+      drawScene(S, layout, { guide: false, predict: false });
     } else if (screen === 'result') {
       vps[0].az += CFG.cameraSpin; vps[0].mode = 'free';
       ctx.globalAlpha = 0.55; drawScene(S, 'one', { guide: false, predict: false }); ctx.globalAlpha = 1;
@@ -615,6 +633,14 @@
     if (ax(0) || ax(1) || ax(2) || ax(3)) any = true;
     if (any) lastDevice = 'pad';
     const playing = screen === 'play';
+    if (screen === 'inspect') {
+      const vp = vps[active];
+      if (ax(2) || ax(3) || ax(0) || ax(1)) { vp.mode = 'free'; vp.az -= (ax(2) || ax(0)) * 120 * dt; vp.el = Math.max(-90, Math.min(90, vp.el + (ax(3) || -ax(1)) * 90 * dt)); }
+      if (edge(1) || edge(0)) setScreen('result');
+      if (edge(2) || edge(15)) cyclePreset(1);
+      prevBtn = gp.buttons.map((b) => b.pressed);
+      return;
+    }
     if (playing) {
       if (ax(0) || ax(1)) movePad(ax(0) * CFG.padSpeed * dt, -ax(1) * CFG.padSpeed * dt);
       const vp = vps[active];
@@ -785,6 +811,11 @@
   $('btnNext').addEventListener('click', () => openBrief(levelIdx + 1));
   $('btnRetry').addEventListener('click', restart);
   $('btnResultMenu').addEventListener('click', () => setScreen('menu'));
+  // close the results to look at the finished flight, like a pause; the results come back with one button or Esc
+  function inspect() { V.applyPreset(vps[0], vps[0].mode === 'free' ? 'iso' : vps[0].mode); refreshHudButtons(); setScreen('inspect'); $('btnBackResult').focus(); }
+  $('btnInspect').addEventListener('click', inspect);
+  $('btnResultClose').addEventListener('click', inspect);
+  $('btnBackResult').addEventListener('click', () => setScreen('result'));
   $('btnCopy').addEventListener('click', () => {
     const code = encodeReplay(S), b = $('btnCopy');
     const done = () => { b.textContent = t('res.copied'); setTimeout(() => { b.textContent = t('res.copy'); }, 1500); };
@@ -801,7 +832,7 @@
   }
   let drag = null;
   canvas.addEventListener('pointerdown', (e) => {
-    if (screen !== 'play' && screen !== 'result') return;
+    if (screen !== 'play' && screen !== 'inspect' && screen !== 'result') return;
     const i = viewportAt(e); if (i < 0) return;
     active = i; drag = { x: e.clientX, y: e.clientY }; canvas.setPointerCapture(e.pointerId); refreshHudButtonsSafe();
   });
@@ -838,6 +869,12 @@
       else if (!/^(Arrow|Key[WASD])/.test(e.code)) return;
       e.preventDefault();
       return;
+    }
+    if (screen === 'inspect') {
+      const pre = V.PRESETS.find((p) => p.key === e.key);
+      if (pre) { V.applyPreset(vps[active], pre.id); refreshHudButtons(); e.preventDefault(); return; }
+      if (e.code === 'KeyV') { toggleSplit(); return; }
+      if (e.code === 'KeyF') { vps[active].follow = !vps[active].follow; refreshHudButtons(); return; }
     }
     if (e.key === 'Escape') { goBack(); e.preventDefault(); }
     else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { moveFocus(1); e.preventDefault(); }

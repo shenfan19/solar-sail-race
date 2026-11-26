@@ -9,7 +9,7 @@ abstract: >-
   field of many stars, and every run is scored by deterministic re-simulation
   of its replay.
 type: software
-version: "0.4.0"
+version: "0.4.1"
 date-released: "2026-11-25"
 authors:
   - family-names: Shen

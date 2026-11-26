@@ -167,5 +167,8 @@ SailI18n.register('es', {
   "about.changes": "Registro de cambios",
   "brief.flat": "2D",
   "brief.flatRow": "Bloquear 2D",
-  "help.l5": "La pausa solo detiene el reloj: la cámara y la vela siguen respondiendo. Bloquear 2D, en el informe, mantiene el vuelo en su plano; el panel solo se inclina hacia delante y atrás."
+  "help.l5": "La pausa solo detiene el reloj: la cámara y la vela siguen respondiendo. Bloquear 2D, en el informe, mantiene el vuelo en su plano; el panel solo se inclina hacia delante y atrás.",
+  "res.inspect": "Ver el vuelo",
+  "res.back": "Resultados",
+  "res.msgBurn": "La vela entró en el anillo de sobrecalentamiento de una estrella y se quemó. Cierra esta ventana para ver dónde, y pasa más lejos de esa estrella la próxima vez."
 });

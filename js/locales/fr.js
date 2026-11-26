@@ -167,5 +167,8 @@ SailI18n.register('fr', {
   "about.changes": "Journal des versions",
   "brief.flat": "2D",
   "brief.flatRow": "Verrouiller en 2D",
-  "help.l5": "La pause n'arrête que l'horloge : la caméra et la voile restent réglables. Verrouiller en 2D, dans le briefing, garde le vol dans son plan ; le pavé ne s'incline alors que vers l'avant ou l'arrière."
+  "help.l5": "La pause n'arrête que l'horloge : la caméra et la voile restent réglables. Verrouiller en 2D, dans le briefing, garde le vol dans son plan ; le pavé ne s'incline alors que vers l'avant ou l'arrière.",
+  "res.inspect": "Voir le vol",
+  "res.back": "Résultats",
+  "res.msgBurn": "La voile est entrée dans l'anneau de surchauffe d'une étoile et a brûlé. Fermez cette fenêtre pour voir où, et passez plus loin de cette étoile la prochaine fois."
 });

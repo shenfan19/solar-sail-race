@@ -2,6 +2,11 @@
 
 The same entries, in every interface language, are shown in the game under About.
 
+## 0.4.1 · 2026-11-25
+
+- The results window can be closed to look at the finished flight: the camera turns and zooms, and a burnt sail shows where it happened and which overheating ring it entered. One button or Esc brings the results back.
+- Fixed: a burnt sail in the star race now says it overheated, and the flight bar shows the final time after the results.
+
 ## 0.4.0 · 2026-11-25
 
 - Pause stops only the clock. The scene stays in view, the camera still turns and zooms, and the sail can be set while paused. Leaving the page no longer pauses. Restart and menu buttons sit in the flight bar.
