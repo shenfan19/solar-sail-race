@@ -66,7 +66,7 @@ SailI18n.register('zh-TW', {
   'about.lead': '誰謂河廣 Solar Sail Race，一款關於太陽帆的非即時競速遊戲。',
   'about.name': '名字出自《詩經·衛風·河廣》：誰謂河廣？一葦杭之。',
   'about.physics': '物理是確定性的質點模型：中心天體的引力，加上光對理想平面帆的壓力。成績由重新模擬每一份重播得出。',
-  'about.author': '作者', 'about.authorName': '沈凡、劉家夫', 'about.source': '原始碼', 'about.license': '授權', 'about.version': '版本',
+  'about.author': '作者', 'about.source': '原始碼', 'about.license': '授權', 'about.version': '版本',
   'about.ai': '開發中借助 AI 程式輔助完成程式碼生成、自動化測試和文件。',
 
   'prompt.paste': '貼上重播碼，與它比賽',
@@ -161,5 +161,11 @@ SailI18n.register('zh-TW', {
   "lv.race-deep.name": "深空星場",
   "lv.race-deep.goal": "從靜止出發，越過 17 AU 外的邊界。60 顆星，大多暗淡。",
   "lv.race-deep.steps": ["你從靜止出發，星場會把你拉向最重的一角。", "亮星少，薄膜帆就弱。電動帆的推力只按 1/r 衰減，在廣闊暗淡的星場裡更占優。", "路過恆星的引力能免費給你轉向，挑那些把你彎向外側的星。"],
-  "lv.race-deep.hints": ["先動起來：讓一顆星把你拉近，再傾斜帆面讓它的光把你送過去。", "遠離亮星時只有引力和星風還在起作用，保持朝外的航線。"]
+  "lv.race-deep.hints": ["先動起來：讓一顆星把你拉近，再傾斜帆面讓它的光把你送過去。", "遠離亮星時只有引力和星風還在起作用，保持朝外的航線。"],
+  "about.author1": "沈凡，中山大學系統科學與工程學院",
+  "about.author2": "劉家夫，中山大學（深圳校區）宇航學院",
+  "about.changes": "更新記錄",
+  "brief.flat": "2D",
+  "brief.flatRow": "鎖定 2D",
+  "help.l5": "暫停只停時鐘，仍可旋轉視角、調整帆面。簡報裡的鎖定 2D 讓飛行始終留在平面內，這時傾斜盤只能前後傾。"
 });

@@ -9,14 +9,17 @@ abstract: >-
   field of many stars, and every run is scored by deterministic re-simulation
   of its replay.
 type: software
-version: "0.3.0"
+version: "0.4.0"
 date-released: "2026-11-25"
 authors:
   - family-names: Shen
     given-names: Fan
+    affiliation: "School of Systems Science and Engineering, Sun Yat-sen University"
+    email: shenfan19@gmail.com
   - family-names: Liu
     given-names: Jiafu
-
+    affiliation: "School of Aeronautics and Astronautics, Sun Yat-sen University (Shenzhen Campus)"
+    email: liujf53@mail.sysu.edu.cn
 license: MIT
 repository-code: "https://github.com/shenfan19/solar-sail-race"
 url: "https://shenfan19.github.io/solar-sail-race/"

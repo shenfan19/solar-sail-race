@@ -66,7 +66,7 @@ SailI18n.register('en', {
   'about.lead': 'Solar Sail Race 谁谓河广, a non-real-time racing game about solar sails.',
   'about.name': 'The Chinese name comes from the Book of Songs: 誰謂河廣？一葦杭之. Who says the river is wide? A single reed can cross it.',
   'about.physics': 'The physics is a deterministic point-mass model: gravity of the central body plus light pressure on an ideal flat sail. Scores come from re-simulating each replay.',
-  'about.author': 'Authors', 'about.authorName': 'Fan Shen, Jiafu Liu', 'about.source': 'Source', 'about.license': 'License', 'about.version': 'Version',
+  'about.author': 'Authors', 'about.source': 'Source', 'about.license': 'License', 'about.version': 'Version',
   'about.ai': 'Developed with AI coding assistance for code generation, automated testing, and documentation.',
 
   'prompt.paste': 'Paste a replay code to race against it',
@@ -161,5 +161,11 @@ SailI18n.register('en', {
   "lv.race-deep.name": "Deep field",
   "lv.race-deep.goal": "Cross the boundary 17 AU out from a standing start. 60 stars, mostly dim.",
   "lv.race-deep.steps": ["You start at rest, and the field pulls you toward its heaviest corner.", "With few bright stars a film sail is weak. An electric sail loses its push only as 1/r and does better in a wide dim field.", "Gravity of passing stars can turn you for free. Pick the stars that bend you outward."],
-  "lv.race-deep.hints": ["First get moving: let a star pull you in and lean so its light sends you past it.", "Far from bright stars, only gravity and the wind still work. Keep the line outward."]
+  "lv.race-deep.hints": ["First get moving: let a star pull you in and lean so its light sends you past it.", "Far from bright stars, only gravity and the wind still work. Keep the line outward."],
+  "about.author1": "Fan Shen, School of Systems Science and Engineering, Sun Yat-sen University",
+  "about.author2": "Jiafu Liu, School of Aeronautics and Astronautics, Sun Yat-sen University (Shenzhen Campus)",
+  "about.changes": "Changelog",
+  "brief.flat": "2D",
+  "brief.flatRow": "Lock 2D",
+  "help.l5": "Pause stops only the clock: you can still turn the camera and set the sail. Lock 2D in the briefing keeps the flight in its plane; the pad then only leans forward and back."
 });

@@ -1,4 +1,4 @@
-// Game front end: screens (menu, briefing, play, pause, results), input (pad, keyboard, mouse, gamepad), 3D drawing.
+// Game front end: screens (menu, briefing, play, results), input (pad, keyboard, mouse, gamepad), 3D drawing.
 // All physics lives in sim.js, control mapping in controls.js, craft data in crafts.js, guidance in guide.js,
 // drawing helpers in view3d.js. Two modes: 'sim' missions with real parameters, 'race' courses that are fiction on purpose.
 (function () {
@@ -44,14 +44,16 @@
   let W = 0, H = 0;
 
   // ---- settings and records (storage may be blocked, everything works without it) ----
-  const settings = { scheme: Controls.order[0], guide: true, crafts: Object.assign({}, Crafts.defaults) };
+  const settings = { scheme: Controls.order[0], guide: true, flat: false, crafts: Object.assign({}, Crafts.defaults) };
   function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* ignore */ } }
   (function loadSettings() {
     const s = lsGet('sailSettings');
-    if (s) { try { const o = JSON.parse(s); if (Controls.registry[o.scheme]) settings.scheme = o.scheme; if (typeof o.guide === 'boolean') settings.guide = o.guide; if (o.crafts) Object.keys(Crafts.defaults).forEach((m) => { if (typeof o.crafts[m] === 'string' && Crafts.parse(o.crafts[m]).hull) settings.crafts[m] = o.crafts[m]; }); } catch (e) { /* ignore */ } }
+    if (s) { try { const o = JSON.parse(s); if (Controls.registry[o.scheme]) settings.scheme = o.scheme; if (typeof o.guide === 'boolean') settings.guide = o.guide; if (typeof o.flat === 'boolean') settings.flat = o.flat; if (o.crafts) Object.keys(Crafts.defaults).forEach((m) => { if (typeof o.crafts[m] === 'string' && Crafts.parse(o.crafts[m]).hull) settings.crafts[m] = o.crafts[m]; }); } catch (e) { /* ignore */ } }
   })();
   function saveSettings() { lsSet('sailSettings', JSON.stringify(settings)); }
+  // a level flown locked to 2D keeps its own records and reference ghosts, under '<id>@2d'
+  function runKey(lv) { return lv.id + (lv.flat ? '@2d' : ''); }
   function bestKey(levelId) { return 'sailBest:' + levelId + ':' + settings.scheme; }
   function loadBest(levelId) { try { return JSON.parse(lsGet(bestKey(levelId)) || 'null'); } catch (e) { return null; } }
 
@@ -67,7 +69,7 @@
   let screen = 'menu', levelIdx = 0, level = Levels[0], menuMode = 'sim', garagePick = null;
   let S = null;          // the run in progress or just finished
   let att = null;        // background demo flight
-  let briefGuide = settings.guide, ghostPick = { mode: 'off' }, pastedReplay = null;
+  let briefGuide = settings.guide, briefFlat = settings.flat, ghostPick = { mode: 'off' }, pastedReplay = null;
   let layout = 'one', active = 0;
   const vps = [V.makeViewport('iso'), V.makeViewport('top'), V.makeViewport('side')];
   let lastDevice = 'keyboard', gamepadName = null;
@@ -77,22 +79,26 @@
 
   // ---- replay codes: base64 of a small JSON, format v3 with the craft; v2 codes (before crafts) fly the ideal craft ----
   function encodeReplay(run) {
-    return btoa(JSON.stringify({ v: 3, level: run.level.id, control: run.schemeId, craft: run.craftId, assist: run.assisted, keys: run.keys }));
+    const o = { v: 3, level: run.level.id, control: run.schemeId, craft: run.craftId, assist: run.assisted, keys: run.keys };
+    if (run.level.flat) o.flat = 1;
+    return btoa(JSON.stringify(o));
   }
   function decodeReplay(text) {
     const o = JSON.parse(atob(text.trim()));
     const lv = Levels.find((l) => l.id === o.level);
     if (o.v === 2) o.craft = 'photon:ideal';
     if ((o.v !== 2 && o.v !== 3) || !Array.isArray(o.keys) || !Controls.registry[o.control] || !lv || Crafts.problem(o.craft, lv)) throw new Error('bad code');
+    if (o.flat && !lv.allow2D) throw new Error('bad code');
+    o.flat = !!o.flat;
     return o;
   }
 
   // ---- screens ----
-  const OVERLAYS = { menu: ['menu'], brief: ['brief'], garage: ['garage'], play: ['hud'], pause: ['hud', 'pause'], result: ['result'], settings: ['menu', 'settings'], help: ['menu', 'help'], about: ['menu', 'about'] };
-  const TOP = { menu: 'menu', brief: 'brief', garage: 'garage', play: 'hud', pause: 'pause', result: 'result', settings: 'settings', help: 'help', about: 'about' };
+  const OVERLAYS = { menu: ['menu'], brief: ['brief'], garage: ['garage'], play: ['hud'], result: ['result'], settings: ['menu', 'settings'], help: ['menu', 'help'], about: ['menu', 'about'] };
+  const TOP = { menu: 'menu', brief: 'brief', garage: 'garage', play: 'hud', result: 'result', settings: 'settings', help: 'help', about: 'about' };
   function setScreen(name) {
     screen = name;
-    ['menu', 'brief', 'garage', 'hud', 'pause', 'result', 'settings', 'help', 'about'].forEach((id) => $(id).classList.add('hidden'));
+    ['menu', 'brief', 'garage', 'hud', 'result', 'settings', 'help', 'about'].forEach((id) => $(id).classList.add('hidden'));
     OVERLAYS[name].forEach((id) => $(id).classList.remove('hidden'));
     canvas.style.cursor = name === 'play' || name === 'result' ? 'grab' : 'default';
     if (name !== 'play') { const first = focusables()[0]; if (first) first.focus(); }
@@ -111,8 +117,7 @@
   function goBack() {
     if (screen === 'garage') closeGarage();
     else if (screen === 'brief' || screen === 'settings' || screen === 'help' || screen === 'about' || screen === 'result') setScreen('menu');
-    else if (screen === 'pause') resume();
-    else if (screen === 'play') pause();
+    else if (screen === 'play') togglePause();
   }
 
   // ---- menu ----
@@ -151,6 +156,8 @@
   }
 
   // ---- briefing ----
+  // the level as it will be flown: locked to 2D when the briefing says so and the level allows it
+  function runLevel() { return briefFlat && level.allow2D ? Sim.flatLevel(level) : level; }
   function openBrief(i) {
     levelIdx = i; level = Levels[i];
     attractFor(level);
@@ -171,11 +178,11 @@
   }
   function ghostOptions() {
     const opts = [{ mode: 'off', label: t('ghost.off') }];
-    const ref = (Solutions[level.id] || {})[settings.scheme];
+    const rl = runLevel(), ref = (Solutions[runKey(rl)] || {})[settings.scheme];
     if (ref) opts.push({ mode: 'ref', label: t('ghost.ref'), keys: ref.keys, control: settings.scheme, craft: ref.craft });
-    const best = loadBest(level.id);
+    const best = loadBest(runKey(rl));
     if (best && best.code) { try { const d = decodeReplay(best.code); opts.push({ mode: 'best', label: t('ghost.best'), keys: d.keys, control: d.control, craft: d.craft }); } catch (e) { /* ignore */ } }
-    if (pastedReplay && pastedReplay.level === level.id) opts.push({ mode: 'code', label: t('ghost.code'), keys: pastedReplay.keys, control: pastedReplay.control, craft: pastedReplay.craft });
+    if (pastedReplay && pastedReplay.level === level.id && pastedReplay.flat === !!rl.flat) opts.push({ mode: 'code', label: t('ghost.code'), keys: pastedReplay.keys, control: pastedReplay.control, craft: pastedReplay.craft });
     return opts;
   }
   function refreshBriefButtons() {
@@ -183,6 +190,9 @@
     $('btnBriefGuide').classList.toggle('on', briefGuide);
     const sel = ghostOptions().find((o) => o.mode === ghostPick.mode) || { label: t('ghost.off') };
     $('btnBriefGhost').textContent = sel.label;
+    $('rowBriefFlat').classList.toggle('hidden', !level.allow2D);
+    $('btnBriefFlat').textContent = onOff(briefFlat);
+    $('btnBriefFlat').classList.toggle('on', briefFlat);
   }
 
   // ---- background demo flight: the reference solution flying forever behind the menus ----
@@ -212,25 +222,26 @@
 
   // ---- a run ----
   function startRun() {
-    const scheme = Controls.registry[settings.scheme], craftId = craftFor(level);
-    const state = Sim.createState(level, settings.scheme, craftId);
+    const scheme = Controls.registry[settings.scheme], craftId = craftFor(level), lv = runLevel();
+    const state = Sim.createState(lv, settings.scheme, craftId);
     S = {
-      level: level, schemeId: settings.scheme, scheme: scheme, state: state, craftId: craftId,
+      level: lv, schemeId: settings.scheme, scheme: scheme, state: state, craftId: craftId,
       a: scheme.a.start, b: scheme.b.start, keys: [{ t: 0, a: scheme.a.start, b: scheme.b.start }],
       trail: [], predicted: [], tickDebt: 0, speedIdx: 1, paused: false, touched: false,
       guide: briefGuide, assisted: briefGuide, padX: 0, padY: 0,
       rMin: Infinity, rMax: 0, ghostState: null, ghostTrail: [], ghostCursor: { i: 0 }, ghost: null, autoplay: null
     };
     const opt = ghostOptions().find((o) => o.mode === ghostPick.mode);
-    if (opt && opt.keys) { S.ghost = opt; S.ghostState = Sim.createState(level, opt.control, opt.craft); }
+    if (opt && opt.keys) { S.ghost = opt; S.ghostState = Sim.createState(lv, opt.control, opt.craft); }
     if (hashArgs.autoplay) {
-      const ref = (Solutions[level.id] || {})[settings.scheme];
+      const ref = (Solutions[runKey(lv)] || {})[settings.scheme];
       if (ref) { S.autoplay = { keys: ref.keys, cursor: { i: 0 } }; S.speedIdx = CFG.autoSpeedIndex; }
     }
     vps.forEach((vp) => { vp.zoom = 1; });
     V.applyPreset(vps[0], 'iso');
     $('lvlName').textContent = lvText(level, 'name');
     $('padBox').classList.add('nudge');
+    $('pausedTag').classList.add('hidden');
     refreshHudButtons();
     setScreen('play');
   }
@@ -245,6 +256,7 @@
     return true;
   }
   function applyPad() {
+    if (S.level.flat) S.padY = 0; // Lock 2D: the pad only leans forward and back
     const q = CFG.padStep;
     const qx = Math.round(S.padX / q) * q, qy = Math.round(S.padY / q) * q;
     const n = Guide.padToLocal(qx, qy, CFG.padCone);
@@ -284,19 +296,24 @@
     }
   }
 
-  function pause() { if (screen === 'play') { S.paused = true; setScreen('pause'); $('btnResume').focus(); } }
-  function resume() { if (screen === 'pause') { S.paused = false; setScreen('play'); } }
+  // Pause stops the clock only. The scene stays in view, the camera turns and zooms, and the pad still sets the sail,
+  // so a pilot can stop, look round and line up the next push. Leaving the page does not pause.
+  function togglePause() {
+    if (screen !== 'play') return;
+    S.paused = !S.paused;
+    $('pausedTag').classList.toggle('hidden', !S.paused);
+  }
   function restart() { startRun(); }
 
   // ---- results ----
   function finishRun() {
     const st = S.state, lv = S.level, time = st.tick * lv.dt, ok = st.done === 'success';
     const stars = ok ? starsFor(lv, time) : 0;
-    const best = loadBest(lv.id);
+    const best = loadBest(runKey(lv));
     let record = false;
     if (ok && (!best || time < best.time)) {
       record = true;
-      lsSet(bestKey(lv.id), JSON.stringify({ time: time, keys: S.keys.length, stars: stars, assisted: S.assisted, code: encodeReplay(S) }));
+      lsSet(bestKey(runKey(lv)), JSON.stringify({ time: time, keys: S.keys.length, stars: stars, assisted: S.assisted, code: encodeReplay(S) }));
     }
     const m = lv.medals, unit = unitT(lv);
     $('resultTitle').textContent = t(ok ? 'res.ok' : st.done === 'fail' ? 'res.fail' : 'res.time');
@@ -319,7 +336,7 @@
       stat(t('res.farthest'), S.rMax.toFixed(2) + ' ' + lv.unitLen) +
       stat(t('res.guide'), t(S.assisted ? 'res.used' : 'res.none'));
     if (lv.mode === 'race') $('resultStats').innerHTML = stat(t('res.adjust'), S.keys.length) + stat(t('res.closestStar'), S.rMin === Infinity ? '-' : S.rMin.toFixed(2) + ' ' + lv.unitLen) + stat(t('res.guide'), t(S.assisted ? 'res.used' : 'res.none'));
-    $('resultCraft').textContent = craftName(S.craftId);
+    $('resultCraft').textContent = craftName(S.craftId) + (lv.flat ? ' · ' + t('brief.flat') : '');
     const hasNext = levelIdx + 1 < Levels.length && Levels[levelIdx + 1].mode === lv.mode;
     $('btnNext').classList.toggle('hidden', !(ok && hasNext));
     $('btnCopy').classList.toggle('hidden', !ok);
@@ -375,9 +392,10 @@
     pctx.clearRect(0, 0, w, w);
     pctx.strokeStyle = alpha(COL.pad, 0.35); pctx.lineWidth = 2;
     pctx.beginPath(); pctx.arc(c, c, R, 0, 6.2832); pctx.stroke();
-    pctx.beginPath(); pctx.moveTo(c - R, c); pctx.lineTo(c + R, c); pctx.moveTo(c, c - R); pctx.lineTo(c, c + R); pctx.stroke();
+    pctx.beginPath(); pctx.moveTo(c - R, c); pctx.lineTo(c + R, c); if (!S.level.flat) { pctx.moveTo(c, c - R); pctx.lineTo(c, c + R); } pctx.stroke();
+    if (S.level.flat) { pctx.strokeStyle = alpha(COL.accent, 0.8); pctx.lineWidth = 4; pctx.beginPath(); pctx.moveTo(c - R, c); pctx.lineTo(c + R, c); pctx.stroke(); }
     pctx.fillStyle = alpha(COL.pad, 0.8); pctx.font = '500 22px "IBM Plex Sans", system-ui, sans-serif'; pctx.textAlign = 'center';
-    pctx.fillText(t('hud.forward'), c + R - 44, c - 10); pctx.fillText(t('hud.pole'), c + 30, c - R + 28);
+    pctx.fillText(t('hud.forward'), c + R - 44, c - 10); pctx.fillText(S.level.flat ? t('brief.flat') : t('hud.pole'), c + 30, c - R + 28);
     let gp = null;
     if (S.guide) {
       const wn = Guide.wanted(S.state, S.level.autopilot);
@@ -543,7 +561,7 @@
     ctx.fillStyle = COL.star;
     stars.forEach((s) => { ctx.globalAlpha = 0.18 + s[2] * 0.22; ctx.fillRect(s[0] * W, s[1] * H, s[2], s[2]); });
     ctx.globalAlpha = 1;
-    if (screen === 'play' || screen === 'pause') {
+    if (screen === 'play') {
       drawScene(S, layout, { guide: S.guide, predict: true });
     } else if (screen === 'result') {
       vps[0].az += CFG.cameraSpin; vps[0].mode = 'free';
@@ -561,19 +579,19 @@
     const dt = Math.min(0.1, (now - lastTime) / 1000);
     lastTime = now;
     pollGamepad(dt);
-    if (screen === 'play' || screen === 'pause') {
+    if (screen === 'play') {
       const kx = (held.ArrowRight || held.KeyD ? 1 : 0) - (held.ArrowLeft || held.KeyA ? 1 : 0);
       const ky = (held.ArrowUp || held.KeyW ? 1 : 0) - (held.ArrowDown || held.KeyS ? 1 : 0);
       if (kx || ky) movePad(kx * CFG.padSpeed * dt, ky * CFG.padSpeed * dt);
       if (!S.autoplay) applyPad();
-      if (screen === 'play' && !S.state.done) {
+      if (!S.paused && !S.state.done) {
         S.tickDebt += dt * CFG.speeds[S.speedIdx] * S.level.view.rate / S.level.dt;
         let n = Math.floor(S.tickDebt);
         S.tickDebt -= n;
         if (n > 4000) n = 4000;
         for (let i = 0; i < n && !S.state.done && screen === 'play'; i++) tickOnce();
       }
-      if (screen === 'play' || screen === 'pause') { predict(); updateHud(); drawPad(); }
+      if (screen === 'play') { predict(); updateHud(); drawPad(); }
     } else {
       stepAttract(dt);
     }
@@ -596,15 +614,14 @@
     for (let i = 0; i < gp.buttons.length; i++) if (down(i)) any = true;
     if (ax(0) || ax(1) || ax(2) || ax(3)) any = true;
     if (any) lastDevice = 'pad';
-    const playing = screen === 'play' || screen === 'pause';
+    const playing = screen === 'play';
     if (playing) {
       if (ax(0) || ax(1)) movePad(ax(0) * CFG.padSpeed * dt, -ax(1) * CFG.padSpeed * dt);
       const vp = vps[active];
       if (ax(2) || ax(3)) { vp.mode = 'free'; vp.az -= ax(2) * 120 * dt; vp.el = Math.max(-90, Math.min(90, vp.el + ax(3) * 90 * dt)); }
       const zin = gp.buttons[7] ? gp.buttons[7].value : 0, zout = gp.buttons[6] ? gp.buttons[6].value : 0;
       if (zin > 0.1 || zout > 0.1) vp.zoom = Math.max(0.15, Math.min(40, vp.zoom * Math.pow(1.8, (zin - zout) * dt)));
-      if (edge(0) || edge(9)) { if (screen === 'play') pause(); else resume(); }
-      if (edge(1) && screen === 'pause') resume();
+      if (edge(0) || edge(9) || (edge(1) && S.paused)) togglePause();
       if (edge(2) || edge(15)) cyclePreset(1);
       if (edge(14)) cyclePreset(-1);
       if (edge(3)) toggleGuide();
@@ -612,7 +629,6 @@
       if (edge(5)) changeSpeed(1);
       if (edge(8)) toggleSplit();
       if (edge(10)) { S.padX = 0; S.padY = 0; }
-      if (screen === 'pause') navigate(gp, dt, edge);
     } else {
       navigate(gp, dt, edge);
       if (edge(0)) { const e = document.activeElement; if (e && e.click && e.tagName !== 'BODY') e.click(); }
@@ -716,8 +732,15 @@
   });
 
   // texts built in code, refreshed whenever the language changes
+  // changelog in About, from js/changelog.js; a language without its own list falls back to English
+  function fillChangelog() {
+    const esc = (x) => String(x).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+    $('changelog').innerHTML = (window.SailChangelog || []).map((e) => '<h3>' + e.v + '  ·  ' + e.date + '</h3><ul>' +
+      (e.items[L.lang] || e.items.en).map((x) => '<li>' + esc(x) + '</li>').join('') + '</ul>').join('');
+  }
   function relabel() {
     $('selLang').value = L.lang; $('selLangHome').value = L.lang;
+    fillChangelog();
     Array.prototype.forEach.call($('presets').children, (b) => { const p = V.PRESETS.find((q) => q.id === b.dataset.preset); b.textContent = t('view.' + p.id); b.title = t('hud.keyTitle', { k: p.key }); });
     Array.prototype.forEach.call($('selScheme').options, (o) => { o.textContent = t('scheme.' + o.value); });
     $('btnDefGuide').textContent = onOff(settings.guide);
@@ -737,21 +760,21 @@
   $('btnGhostCode').addEventListener('click', () => {
     const code = window.prompt(t('prompt.paste'));
     if (!code) return;
-    try { pastedReplay = decodeReplay(code); const i = Levels.findIndex((l) => l.id === pastedReplay.level); setMenuMode(Levels[i].mode); openBrief(i); ghostPick = { mode: 'code' }; refreshBriefButtons(); }
+    try { pastedReplay = decodeReplay(code); const i = Levels.findIndex((l) => l.id === pastedReplay.level); setMenuMode(Levels[i].mode); openBrief(i); briefFlat = pastedReplay.flat; ghostPick = { mode: 'code' }; refreshBriefButtons(); }
     catch (e) { window.alert(t('prompt.bad')); }
   });
   $('btnBriefBack').addEventListener('click', () => setScreen('menu'));
   $('btnBriefCraft').addEventListener('click', openGarage);
   $('btnGarageDone').addEventListener('click', closeGarage);
   $('btnBriefGuide').addEventListener('click', () => { briefGuide = !briefGuide; refreshBriefButtons(); });
+  $('btnBriefFlat').addEventListener('click', () => { briefFlat = !briefFlat; settings.flat = briefFlat; saveSettings(); ghostPick = { mode: 'off' }; refreshBriefButtons(); });
   $('btnBriefGhost').addEventListener('click', () => {
     const opts = ghostOptions(), i = Math.max(0, opts.findIndex((o) => o.mode === ghostPick.mode));
     ghostPick = { mode: opts[(i + 1) % opts.length].mode };
     refreshBriefButtons();
   });
   $('btnLaunch').addEventListener('click', startRun);
-  $('btnPause').addEventListener('click', () => { if (screen === 'play') pause(); else resume(); });
-  $('btnResume').addEventListener('click', resume);
+  $('btnPause').addEventListener('click', togglePause);
   $('btnRestart').addEventListener('click', restart);
   $('btnQuit').addEventListener('click', () => setScreen('menu'));
   $('btnGuide').addEventListener('click', toggleGuide);
@@ -778,7 +801,7 @@
   }
   let drag = null;
   canvas.addEventListener('pointerdown', (e) => {
-    if (screen !== 'play' && screen !== 'pause' && screen !== 'result') return;
+    if (screen !== 'play' && screen !== 'result') return;
     const i = viewportAt(e); if (i < 0) return;
     active = i; drag = { x: e.clientX, y: e.clientY }; canvas.setPointerCapture(e.pointerId); refreshHudButtonsSafe();
   });
@@ -799,10 +822,10 @@
   window.addEventListener('keydown', (e) => {
     lastDevice = 'keyboard';
     if (e.target && e.target.tagName === 'SELECT' && e.key !== 'Escape') return;
-    if (screen === 'play' || screen === 'pause') {
+    if (screen === 'play') {
       held[e.code] = true;
       const pre = V.PRESETS.find((p) => p.key === e.key);
-      if (e.key === ' ') { if (screen === 'play') pause(); else resume(); }
+      if (e.key === ' ') togglePause();
       else if (e.key === 'Escape') goBack();
       else if (pre) { V.applyPreset(vps[active], pre.id); refreshHudButtons(); }
       else if (e.code === 'KeyG') toggleGuide();
@@ -821,8 +844,7 @@
     else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { moveFocus(-1); e.preventDefault(); }
   });
   window.addEventListener('keyup', (e) => { held[e.code] = false; });
-  window.addEventListener('blur', () => { Object.keys(held).forEach((k) => { held[k] = false; }); if (screen === 'play') pause(); });
-  document.addEventListener('visibilitychange', () => { if (document.hidden && screen === 'play') pause(); });
+  window.addEventListener('blur', () => { Object.keys(held).forEach((k) => { held[k] = false; }); });
   window.addEventListener('gamepadconnected', () => { if (screen === 'menu') refreshMenu(); });
 
   function resize() {
@@ -845,6 +867,7 @@
   if (level.mode === 'race') setMenuMode('race');
   attractFor(level);
   setScreen('menu');
+  if (hashArgs.flat === '1') briefFlat = true;
   if (hashArgs.screen === 'brief' || hashArgs.autoplay) openBrief(startLevelIdx);
   if (hashArgs.screen === 'settings') setScreen('settings');
   if (hashArgs.screen === 'help') setScreen('help');

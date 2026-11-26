@@ -66,7 +66,7 @@ SailI18n.register('es', {
   'about.lead': 'Solar Sail Race 誰謂河廣, un juego de carreras sin tiempo real sobre velas solares.',
   'about.name': 'El nombre chino viene del Libro de los Cantares: 誰謂河廣？一葦杭之. ¿Quién dice que el río es ancho? Basta un junco para cruzarlo.',
   'about.physics': 'La física es un modelo determinista de masa puntual: la gravedad del cuerpo central más la presión de la luz sobre una vela plana ideal. Las puntuaciones salen de volver a simular cada repetición.',
-  'about.author': 'Autores', 'about.authorName': 'Fan Shen, Jiafu Liu', 'about.source': 'Código fuente', 'about.license': 'Licencia', 'about.version': 'Versión',
+  'about.author': 'Autores', 'about.source': 'Código fuente', 'about.license': 'Licencia', 'about.version': 'Versión',
   'about.ai': 'Desarrollado con asistencia de IA para generar código, pruebas automáticas y documentación.',
 
   'prompt.paste': 'Pega un código de repetición para competir con él',
@@ -161,5 +161,11 @@ SailI18n.register('es', {
   "lv.race-deep.name": "Campo profundo",
   "lv.race-deep.goal": "Cruza el límite a 17 UA partiendo del reposo. 60 estrellas, casi todas débiles.",
   "lv.race-deep.steps": ["Sales en reposo y el campo te atrae hacia su rincón más pesado.", "Con pocas estrellas brillantes la vela de lámina es débil. La vela eléctrica solo pierde empuje como 1/r y rinde mejor en un campo amplio y oscuro.", "La gravedad de las estrellas que pasas te gira gratis. Elige las que te curvan hacia fuera."],
-  "lv.race-deep.hints": ["Primero ponte en marcha: deja que una estrella te atraiga e inclina la vela para que su luz te haga pasar de largo.", "Lejos de las estrellas brillantes solo actúan la gravedad y el viento. Mantén el rumbo hacia fuera."]
+  "lv.race-deep.hints": ["Primero ponte en marcha: deja que una estrella te atraiga e inclina la vela para que su luz te haga pasar de largo.", "Lejos de las estrellas brillantes solo actúan la gravedad y el viento. Mantén el rumbo hacia fuera."],
+  "about.author1": "Fan Shen, Escuela de Ciencia e Ingeniería de Sistemas, Universidad Sun Yat-sen",
+  "about.author2": "Jiafu Liu, Escuela de Aeronáutica y Astronáutica, Universidad Sun Yat-sen (campus de Shenzhen)",
+  "about.changes": "Registro de cambios",
+  "brief.flat": "2D",
+  "brief.flatRow": "Bloquear 2D",
+  "help.l5": "La pausa solo detiene el reloj: la cámara y la vela siguen respondiendo. Bloquear 2D, en el informe, mantiene el vuelo en su plano; el panel solo se inclina hacia delante y atrás."
 });

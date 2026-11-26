@@ -44,7 +44,11 @@
   // law 'escape': race mode, reach the boundary of the star field as soon as possible.
   // The cone for spiral and incline is the hull's best cone for a push square to the light.
   function wanted(s, opt) {
-    return reachable(s, wantedFinal(s, opt));
+    const w = wantedFinal(s, opt);
+    if (!s.level.flat) return reachable(s, w);
+    const o = { e1: w[0], e2: w[1], l: w[2] };
+    Sim.flatten(o);
+    return [o.e1, 0, o.l];
   }
 
   // With a slow mechanism the sail turns along the shortest path, and a large change of clock angle would sweep the

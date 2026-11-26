@@ -66,7 +66,7 @@ SailI18n.register('ko', {
   'about.lead': 'Solar Sail Race 誰謂河廣, 태양돛을 다룬 비실시간 레이싱 게임.',
   'about.name': '중국어 제목은 《시경》 위풍 〈하광〉에서 왔습니다: 누가 강이 넓다 하는가, 갈대 한 줄기로 건너리.',
   'about.physics': '물리는 결정론적 질점 모델입니다. 중심 천체의 중력에 이상적인 평면 돛에 작용하는 광압을 더합니다. 점수는 각 리플레이를 다시 시뮬레이션해서 얻습니다.',
-  'about.author': '제작', 'about.authorName': 'Fan Shen, Jiafu Liu', 'about.source': '소스', 'about.license': '라이선스', 'about.version': '버전',
+  'about.author': '제작', 'about.source': '소스', 'about.license': '라이선스', 'about.version': '버전',
   'about.ai': '코드 생성, 자동 테스트, 문서 작성에 AI 코딩 지원을 받아 개발했습니다.',
 
   'prompt.paste': '리플레이 코드를 붙여 넣어 경주하기',
@@ -161,5 +161,11 @@ SailI18n.register('ko', {
   "lv.race-deep.name": "깊은 성장",
   "lv.race-deep.goal": "정지 상태에서 출발해 17 AU 밖 경계를 넘으세요. 항성 60개, 대부분 어둡습니다.",
   "lv.race-deep.steps": ["정지 상태로 출발하면 성장이 가장 무거운 쪽으로 끌어당깁니다.", "밝은 별이 적으면 필름 돛은 약합니다. 전기 돛의 추력은 1/r로만 줄어들어 넓고 어두운 성장에서 유리합니다.", "지나가는 항성의 중력은 공짜로 방향을 바꿔 줍니다. 바깥쪽으로 휘게 해 주는 별을 고르세요."],
-  "lv.race-deep.hints": ["먼저 움직이세요. 항성이 끌어당기게 두고, 그 빛이 옆으로 지나가게 돛을 기울이세요.", "밝은 별에서 멀어지면 중력과 항성풍만 작용합니다. 바깥쪽 항로를 지키세요."]
+  "lv.race-deep.hints": ["먼저 움직이세요. 항성이 끌어당기게 두고, 그 빛이 옆으로 지나가게 돛을 기울이세요.", "밝은 별에서 멀어지면 중력과 항성풍만 작용합니다. 바깥쪽 항로를 지키세요."],
+  "about.author1": "Fan Shen(沈凡), 중산대학교 시스템과학공학대학",
+  "about.author2": "Jiafu Liu(刘家夫), 중산대학교(선전 캠퍼스) 항공우주대학",
+  "about.changes": "변경 기록",
+  "brief.flat": "2D",
+  "brief.flatRow": "2D 고정",
+  "help.l5": "일시정지는 시계만 멈추고, 시점 회전과 돛 조작은 그대로 됩니다. 브리핑의 2D 고정을 켜면 비행이 평면에 머물고 패드는 앞뒤로만 기울어집니다."
 });

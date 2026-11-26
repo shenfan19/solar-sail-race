@@ -1,7 +1,8 @@
 // Reference solutions for the shipped levels, one per control scheme. Not part of the game: it proves the
 // levels are solvable, produces replays for the ghost, and gives verify.js something to check.
 // Reference solutions are flown with the default craft of the level's mode (crafts.js defaults).
-// usage: node tools/autopilot.js [levelId]    writes solutions/<level>_<scheme>.json and js/solutions.js
+// usage: node tools/autopilot.js [levelId]    writes solutions/<level>_<scheme>.json (and <level>_2d_<scheme>.json for
+//                                             the locked 2D variant) and js/solutions.js
 //        node tools/autopilot.js --survey      flies every allowed craft on every level and prints the times
 'use strict';
 const fs = require('fs');
@@ -69,19 +70,23 @@ if (require.main === module && process.argv[2] === '--survey') {
   const out = path.join(__dirname, '..', 'solutions');
   fs.mkdirSync(out, { recursive: true });
   const all = {};
-  for (const lv of levels) {
+  // every level, plus the locked 2D variant of those that allow it, stored under '<id>@2d'
+  const runs = [];
+  levels.forEach((lv) => { runs.push([lv.id, lv]); if (lv.allow2D) runs.push([lv.id + '@2d', Sim.flatLevel(lv)]); });
+  for (const [key, lv] of runs) {
     if (want && lv.id !== want) continue;
-    all[lv.id] = {};
+    all[key] = {};
     for (const id of Controls.order) {
       const craft = Crafts.defaults[lv.mode];
       const r = solve(lv, id, craft);
       const check = Sim.runReplay(lv, r.keys, id, craft);
-      console.log(lv.id, id, r.status, 'time', (r.ticks * lv.dt).toFixed(1), lv.timeScaleLabel, 'keys', r.keys.length,
+      console.log(key, id, r.status, 'time', (r.ticks * lv.dt).toFixed(1), lv.timeScaleLabel, 'keys', r.keys.length,
         'replay', check.status, check.ticks === r.ticks ? 'same' : 'DIFFERENT');
       if (r.status === 'success' && check.ticks === r.ticks) {
-        fs.writeFileSync(path.join(out, lv.id + '_' + id + '.json'),
-          JSON.stringify({ v: 3, level: lv.id, control: id, craft: craft, keys: r.keys }));
-        all[lv.id][id] = { ticks: check.ticks, craft: craft, keys: r.keys };
+        const rec = { v: 3, level: lv.id, control: id, craft: craft, keys: r.keys };
+        if (lv.flat) rec.flat = 1;
+        fs.writeFileSync(path.join(out, lv.id + (lv.flat ? '_2d_' : '_') + id + '.json'), JSON.stringify(rec));
+        all[key][id] = { ticks: check.ticks, craft: craft, keys: r.keys };
       }
     }
   }

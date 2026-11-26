@@ -3,12 +3,13 @@
 // at which each entry of lv.<id>.hints takes over.
 // Heliocentric levels: length AU, time day, mu in AU^3/day^2, sail acceleration = beta * mu / r^2 * cos^2(cone).
 // view.rate: simulated time units per real second at speed 1x.
+// allow2D: the player may lock the flight to the start plane. Not for the polar orbit missions, which need to leave it.
 // Planet levels: length Earth radius, time hour, mu in R^3/h^2, sail acceleration is constant (light is far away).
 (function (root) {
   'use strict';
   const levels = [
     {
-      id: 'sun-mars', mode: 'sim', hoursPerUnit: 24, au: 1, solarWind: true,
+      id: 'sun-mars', mode: 'sim', hoursPerUnit: 24, au: 1, solarWind: true, allow2D: true,
       story: 'Start on a circular orbit at 1 AU. Use the push of light to gain orbital energy and spiral outward until you cross the orbit of Mars at 1.52 AU. Pushing forward along the orbit raises the orbit, pushing backward lowers it.',
       light: 'central',
       mu: 0.000295912208,
@@ -73,53 +74,53 @@
     // anywhere, shortest time wins. The field is a flattened disc, as the Galaxy is a thin disc.
     // Stars are made by field() below from a seed, so the layout is data and the same in every browser.
     {
-      id: 'race-near', mode: 'race', hoursPerUnit: 24, au: 1, solarWind: true,
+      id: 'race-near', mode: 'race', hoursPerUnit: 24, au: 1, solarWind: true, allow2D: true,
       light: 'stars',
       mu: 0.000295912208,
       dt: 0.2,
       unitLen: 'AU', unitTime: 'day', timeScaleLabel: 'days',
-      field: { seed: 7, counts: { M: 16, K: 4, G: 2, F: 1, A: 1 }, radius: 9, thick: 0.15, minSep: 1.5, clear: 1.2 },
+      field: { seed: 7, seed2D: 6, counts: { M: 16, K: 4, G: 2, F: 1, A: 1 }, radius: 9, thick: 0.15, minSep: 1.5, clear: 1.2 },
       start: { pos: [0, 0, 0], vel: [0.008, 0, 0] },
       goal: { center: [0, 0, 0], r: 11 },
       maxTicks: 25000,
       autopilot: { law: 'escape' },
       guideSpeed: 0.04, guideLag: 60,
       difficulty: 'Easy',
-      medals: { gold: 600, silver: 680, bronze: 820 },
+      medals: { gold: 600, silver: 680, bronze: 820 }, medals2D: { gold: 715, silver: 810, bronze: 980 },
       hintAt: [0, 0.5],
       view: { span: 12, rate: 20 }
     },
     {
-      id: 'race-young', mode: 'race', hoursPerUnit: 24, au: 1, solarWind: true,
+      id: 'race-young', mode: 'race', hoursPerUnit: 24, au: 1, solarWind: true, allow2D: true,
       light: 'stars',
       mu: 0.000295912208,
       dt: 0.2,
       unitLen: 'AU', unitTime: 'day', timeScaleLabel: 'days',
-      field: { seed: 5, counts: { M: 18, K: 8, G: 6, F: 5, A: 3 }, radius: 12, thick: 0.15, minSep: 1.5, clear: 1.2 },
+      field: { seed: 5, seed2D: 9, counts: { M: 18, K: 8, G: 6, F: 5, A: 3 }, radius: 12, thick: 0.15, minSep: 1.5, clear: 1.2 },
       start: { pos: [0, 0, 0], vel: [0, 0.008, 0] },
       goal: { center: [0, 0, 0], r: 15 },
       maxTicks: 25000,
       autopilot: { law: 'escape' },
       guideSpeed: 0.04, guideLag: 60,
       difficulty: 'Medium',
-      medals: { gold: 495, silver: 560, bronze: 680 },
+      medals: { gold: 495, silver: 560, bronze: 680 }, medals2D: { gold: 850, silver: 960, bronze: 1160 },
       hintAt: [0, 0.5],
       view: { span: 16, rate: 25 }
     },
     {
-      id: 'race-deep', mode: 'race', hoursPerUnit: 24, au: 1, solarWind: true,
+      id: 'race-deep', mode: 'race', hoursPerUnit: 24, au: 1, solarWind: true, allow2D: true,
       light: 'stars',
       mu: 0.000295912208,
       dt: 0.2,
       unitLen: 'AU', unitTime: 'day', timeScaleLabel: 'days',
-      field: { seed: 6, counts: { M: 40, K: 10, G: 5, F: 3, A: 2 }, radius: 14, thick: 0.15, minSep: 1.5, clear: 1.2 },
+      field: { seed: 6, seed2D: 8, counts: { M: 40, K: 10, G: 5, F: 3, A: 2 }, radius: 14, thick: 0.15, minSep: 1.5, clear: 1.2 },
       start: { pos: [0, 0, 0], vel: [0, 0, 0] },
       goal: { center: [0, 0, 0], r: 17 },
       maxTicks: 30000,
       autopilot: { law: 'escape' },
       guideSpeed: 0.04, guideLag: 60,
       difficulty: 'Hard',
-      medals: { gold: 1360, silver: 1550, bronze: 1900 },
+      medals: { gold: 1360, silver: 1550, bronze: 1900 }, medals2D: { gold: 1470, silver: 1670, bronze: 2060 },
       hintAt: [0, 0.5],
       view: { span: 18, rate: 30 }
     }
@@ -164,6 +165,12 @@
     });
     return out;
   }
-  levels.forEach((lv) => { if (lv.field) lv.stars = field(lv.field, lv.start.pos); });
+  // allow2D: the level can be flown locked to its plane (see sim.js flatLevel). A star field then has its own flat
+  // layout, made by the same generator with no thickness from seed2D; medals2D are its medal times.
+  levels.forEach((lv) => {
+    if (!lv.field) return;
+    lv.stars = field(lv.field, lv.start.pos);
+    if (lv.allow2D) lv.stars2D = field(Object.assign({}, lv.field, { seed: lv.field.seed2D, thick: 0 }), lv.start.pos);
+  });
   if (typeof module !== 'undefined' && module.exports) module.exports = levels; else root.SailLevels = levels;
 })(typeof window !== 'undefined' ? window : globalThis);

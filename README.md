@@ -2,6 +2,9 @@
 
 By Fan Shen and Jiafu Liu.
 
+- Fan Shen 沈凡, School of Systems Science and Engineering, Sun Yat-sen University, shenfan19@gmail.com
+- Jiafu Liu 刘家夫, School of Aeronautics and Astronautics, Sun Yat-sen University (Shenzhen Campus), liujf53@mail.sysu.edu.cn
+
 The Chinese name comes from the Book of Songs (詩經), *Wei Feng, He Guang*: 誰謂河廣？一葦杭之. Who says the river is wide? A single reed can cross it.
 
 A non-real-time racing game about solar sails and electric sails. Gravity pulls the craft toward a star or planet, light or the stellar wind pushes it away, and the path between the two decides the score. Pausing and slowing down are free, so the race is about the trajectory, not about reflexes.
@@ -9,6 +12,8 @@ A non-real-time racing game about solar sails and electric sails. Gravity pulls 
 Status: prototype, three missions and three star fields.
 
 Play online: https://shenfan19.github.io/solar-sail-race/
+
+Changes by version: [CHANGELOG.md](CHANGELOG.md), also shown in the game under About.
 
 ## Modes
 
@@ -30,6 +35,10 @@ Play online: https://shenfan19.github.io/solar-sail-race/
 | Deep field | 60, mostly dim | 17 AU | at rest |
 
 Star types (`js/levels.js`): M, K, G, F and A, each with a mass, luminosity and wind strength. Light against gravity scales as luminosity over mass, so a red dwarf barely pushes a film sail while an A star pushes it away harder than it pulls. The ring around each star where the film would overheat is 0.2 AU around a Sun-like star scaled by the square root of the luminosity, and at least 0.1 AU. Fields are generated from a seed with integer arithmetic, so the layout is identical in every browser.
+
+The warm-up mission and the star races can be flown with Lock 2D, switched on in the briefing. The sail then only leans forward and back, so the flight never leaves its plane. A star field flown in 2D has its own flat layout (`seed2D`), medal times, records and reference ghost. The polar orbit missions need to leave the plane and have no 2D lock.
+
+Pause stops only the clock: the camera still turns and zooms and the sail can be set while paused. Leaving the page does not pause.
 
 Each mission and star field has a briefing, a pilot guide, a three-star rating from the finish time, and a results screen. Runs can be raced against the reference pilot, your own best, or a pasted replay code.
 
@@ -72,19 +81,19 @@ The pad can drive any control scheme in `js/controls.js`. A scheme only decides 
 
 ## Replays
 
-Every run is stored as piecewise constant keyframes `{t, a, b}` for the chosen scheme. A replay code is the base64 of `{v: 3, level, control, craft, assist, keys}`; `craft` is an id such as `photon:vane+mass`. Codes of format v2, recorded before crafts existed, replay with instant turning. Scores are computed by re-simulating the replay, never taken from the player.
+Every run is stored as piecewise constant keyframes `{t, a, b}` for the chosen scheme. A replay code is the base64 of `{v: 3, level, control, craft, assist, flat, keys}`; `craft` is an id such as `photon:vane+mass`, and `flat: 1` marks a run flown with Lock 2D. Codes of format v2, recorded before crafts existed, replay with instant turning. Scores are computed by re-simulating the replay, never taken from the player.
 
 ## Run
 
 Open `index.html` in a browser. No build step. Fonts load from Google Fonts when online and fall back to system fonts.
 
 ```
-node tools/autopilot.js          # generate reference solutions with the default craft
+node tools/autopilot.js          # generate reference solutions with the default craft, 3D and Lock 2D
 node tools/autopilot.js --survey # fly every craft on every mission and star field
 node tools/verify.js solutions/earth-polar_euler.json
 ```
 
-Deep links: `index.html#level=earth-polar`, `#mode=race`, `#screen=settings`, `#screen=garage`, `#lang=ja`, `#autoplay=1` flies the reference solution and shows the results screen.
+Deep links: `index.html#level=earth-polar`, `#mode=race`, `#screen=settings`, `#screen=garage`, `#lang=ja`, `#flat=1` turns on Lock 2D, `#autoplay=1` flies the reference solution and shows the results screen.
 
 ## Determinism
 

@@ -66,7 +66,7 @@ SailI18n.register('fr', {
   'about.lead': 'Solar Sail Race 誰謂河廣, un jeu de course sans temps réel sur les voiles solaires.',
   'about.name': 'Le nom chinois vient du Classique des vers : 誰謂河廣？一葦杭之. Qui dit que le fleuve est large ? Un seul roseau suffit pour le traverser.',
   'about.physics': 'La physique est un modèle déterministe de point matériel : gravité du corps central et pression de radiation sur une voile plane idéale. Les scores viennent de la re-simulation de chaque replay.',
-  'about.author': 'Auteurs', 'about.authorName': 'Fan Shen, Jiafu Liu', 'about.source': 'Code source', 'about.license': 'Licence', 'about.version': 'Version',
+  'about.author': 'Auteurs', 'about.source': 'Code source', 'about.license': 'Licence', 'about.version': 'Version',
   'about.ai': 'Développé avec une assistance IA pour la génération de code, les tests automatisés et la documentation.',
 
   'prompt.paste': 'Collez un code de replay pour l’affronter',
@@ -161,5 +161,11 @@ SailI18n.register('fr', {
   "lv.race-deep.name": "Champ profond",
   "lv.race-deep.goal": "Franchir la limite à 17 UA en partant à l'arrêt. 60 étoiles, surtout faibles.",
   "lv.race-deep.steps": ["Vous partez à l'arrêt, et le champ vous attire vers son coin le plus lourd.", "Avec peu d'étoiles brillantes, une voile photonique est faible. Une voile électrique ne perd sa poussée qu'en 1/r et s'en sort mieux dans un champ vaste et sombre.", "La gravité des étoiles croisées vous fait tourner gratuitement. Choisissez celles qui vous courbent vers l'extérieur."],
-  "lv.race-deep.hints": ["D'abord prendre de la vitesse : laissez une étoile vous attirer et inclinez la voile pour que sa lumière vous fasse passer à côté.", "Loin des étoiles brillantes, seules la gravité et le vent agissent encore. Gardez le cap vers l'extérieur."]
+  "lv.race-deep.hints": ["D'abord prendre de la vitesse : laissez une étoile vous attirer et inclinez la voile pour que sa lumière vous fasse passer à côté.", "Loin des étoiles brillantes, seules la gravité et le vent agissent encore. Gardez le cap vers l'extérieur."],
+  "about.author1": "Fan Shen, École des sciences et de l'ingénierie des systèmes, Université Sun Yat-sen",
+  "about.author2": "Jiafu Liu, École d'aéronautique et d'astronautique, Université Sun Yat-sen (campus de Shenzhen)",
+  "about.changes": "Journal des versions",
+  "brief.flat": "2D",
+  "brief.flatRow": "Verrouiller en 2D",
+  "help.l5": "La pause n'arrête que l'horloge : la caméra et la voile restent réglables. Verrouiller en 2D, dans le briefing, garde le vol dans son plan ; le pavé ne s'incline alors que vers l'avant ou l'arrière."
 });

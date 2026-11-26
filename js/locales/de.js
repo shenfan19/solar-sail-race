@@ -66,7 +66,7 @@ SailI18n.register('de', {
   'about.lead': 'Solar Sail Race 誰謂河廣, ein Rennspiel ohne Echtzeitdruck über Sonnensegel.',
   'about.name': 'Der chinesische Name stammt aus dem Buch der Lieder: 誰謂河廣？一葦杭之. Wer sagt, der Fluss sei breit? Ein einziges Schilfrohr trägt hinüber.',
   'about.physics': 'Die Physik ist ein deterministisches Punktmassenmodell: Schwerkraft des Zentralkörpers plus Strahlungsdruck auf ein ideales ebenes Segel. Die Wertung entsteht durch erneute Simulation jedes Replays.',
-  'about.author': 'Autoren', 'about.authorName': 'Fan Shen, Jiafu Liu', 'about.source': 'Quellcode', 'about.license': 'Lizenz', 'about.version': 'Version',
+  'about.author': 'Autoren', 'about.source': 'Quellcode', 'about.license': 'Lizenz', 'about.version': 'Version',
   'about.ai': 'Entwickelt mit KI-Unterstützung für Codeerzeugung, automatisierte Tests und Dokumentation.',
 
   'prompt.paste': 'Replay-Code einfügen, um dagegen zu fliegen',
@@ -161,5 +161,11 @@ SailI18n.register('de', {
   "lv.race-deep.name": "Tiefes Feld",
   "lv.race-deep.goal": "Überquere aus dem Stand die Grenze in 17 AE Abstand. 60 Sterne, meist lichtschwach.",
   "lv.race-deep.steps": ["Du startest in Ruhe, und das Feld zieht dich in seine schwerste Ecke.", "Mit wenigen hellen Sternen ist ein Foliensegel schwach. Ein elektrisches Segel verliert seinen Schub nur mit 1/r und schlägt sich in einem weiten dunklen Feld besser.", "Die Schwerkraft vorbeiziehender Sterne lenkt dich kostenlos um. Wähle die Sterne, die dich nach außen biegen."],
-  "lv.race-deep.hints": ["Erst in Fahrt kommen: Lass dich von einem Stern anziehen und neige das Segel, damit sein Licht dich vorbeiträgt.", "Fern heller Sterne wirken nur noch Schwerkraft und Wind. Halte die Linie nach außen."]
+  "lv.race-deep.hints": ["Erst in Fahrt kommen: Lass dich von einem Stern anziehen und neige das Segel, damit sein Licht dich vorbeiträgt.", "Fern heller Sterne wirken nur noch Schwerkraft und Wind. Halte die Linie nach außen."],
+  "about.author1": "Fan Shen, School of Systems Science and Engineering, Sun-Yat-sen-Universität",
+  "about.author2": "Jiafu Liu, School of Aeronautics and Astronautics, Sun-Yat-sen-Universität (Campus Shenzhen)",
+  "about.changes": "Änderungsprotokoll",
+  "brief.flat": "2D",
+  "brief.flatRow": "2D sperren",
+  "help.l5": "Pause hält nur die Uhr an: Kamera und Segel bleiben bedienbar. 2D sperren im Briefing hält den Flug in seiner Ebene; das Feld neigt sich dann nur vor und zurück."
 });

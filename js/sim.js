@@ -189,10 +189,30 @@
     out.x = ax; out.y = ay; out.z = az;
   }
 
+  // Lock 2D: the sail normal keeps no component along e2, the orbit normal. Light, gravity and the sail push then all
+  // lie in the plane of the light and the velocity, and a craft that starts in the plane z = 0 among stars in that
+  // plane stays in it exactly (the out of plane terms are exact zeros). A normal pointing straight along e2 is edge-on,
+  // which gives the same push as the edge-on normal e1.
+  function flatten(o) {
+    const m = Math.sqrt(o.e1 * o.e1 + o.l * o.l);
+    if (m < 1e-12) { o.e1 = 1; o.e2 = 0; o.l = 0; return; }
+    o.e1 /= m; o.l /= m; o.e2 = 0;
+  }
+  // the locked 2D variant of a level: start in the plane z = 0, and for a star field its flat layout
+  function flatLevel(level) {
+    if (!level.allow2D) return level;
+    const p = level.start.pos, v = level.start.vel;
+    const out = Object.assign({}, level, { flat: true, start: { pos: [p[0], p[1], 0], vel: [v[0], v[1], 0] } });
+    if (level.stars2D) out.stars = level.stars2D;
+    if (level.medals2D) out.medals = level.medals2D;
+    return out;
+  }
+
   const N = {}, A1 = {}, A2 = {}, A3 = {}, A4 = {};
   function step(s, a, b) {
     const lv = s.level, dt = lv.dt;
     s.scheme.local(a, b, LOC);
+    if (lv.flat) flatten(LOC);
     turnToward(s, LOC.e1, LOC.e2, LOC.l);
     actualNormal(s, N);
     const nx = N.x, ny = N.y, nz = N.z;
@@ -279,6 +299,6 @@
     return Math.acos(hz / Math.sqrt(hx * hx + hy * hy + hz * hz)) * 180 / PI; // display only
   }
 
-  const api = { createState, step, runReplay, controlAt, sailNormal, actualNormal, frame, dominant, refBody, nearest, inclinationDeg };
+  const api = { createState, step, runReplay, controlAt, sailNormal, actualNormal, frame, dominant, refBody, nearest, inclinationDeg, flatLevel, flatten };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.SailSim = api;
 })(typeof window !== 'undefined' ? window : globalThis);
