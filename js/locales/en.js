@@ -170,5 +170,7 @@ SailI18n.register('en', {
   "help.l5": "Pause stops only the clock: you can still turn the camera and set the sail. Lock 2D in the briefing keeps the flight in its plane; the pad then only leans forward and back.",
   "res.inspect": "Look at the flight",
   "res.back": "Results",
-  "res.msgBurn": "The sail flew inside the overheating ring of a star and burnt. Close this window to see where, and keep further from that star next time."
+  "res.msgBurn": "The sail flew inside the overheating ring of a star and burnt. Close this window to see where, and keep further from that star next time.",
+  "menu.tabSimD": "Real parameters, one star or planet",
+  "menu.tabRaceD": "Fiction on purpose: open star fields"
 });

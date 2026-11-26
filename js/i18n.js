@@ -4,8 +4,8 @@
   'use strict';
   const I = {
     packs: {},
-    order: ['en', 'zh-CN', 'zh-TW', 'ja', 'ko', 'fr', 'de', 'es', 'ru'],
-    names: { 'en': 'English', 'zh-CN': '简体中文', 'zh-TW': '繁體中文', 'ja': '日本語', 'ko': '한국어', 'fr': 'Français', 'de': 'Deutsch', 'es': 'Español', 'ru': 'Русский' },
+    order: ['en', 'zh-CN', 'ja'],
+    names: { 'en': 'English', 'zh-CN': '简体中文', 'ja': '日本語' },
     fallback: 'en',
     lang: 'en',
     storeKey: 'sailLang'
@@ -17,7 +17,7 @@
     const list = (navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || I.fallback]);
     for (let i = 0; i < list.length; i++) {
       const low = String(list[i]).toLowerCase();
-      if (low.startsWith('zh')) return /tw|hk|mo|hant/.test(low) ? 'zh-TW' : 'zh-CN';
+      if (low.startsWith('zh')) return 'zh-CN';
       const base = low.split('-')[0];
       if (I.packs[base]) return base;
     }

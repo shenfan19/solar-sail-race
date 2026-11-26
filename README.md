@@ -61,7 +61,7 @@ Each mechanism limits how fast the real sail normal follows the pad and adds mas
 
 ## Languages
 
-English, 简体中文, 繁體中文, 日本語, 한국어, Français, Deutsch, Español, Русский. The game follows the browser language; the menu footer and Settings switch it. All interface text is in `js/locales`, one file per language.
+English, 简体中文, 日本語. The game follows the browser language; any Chinese browser gets Simplified Chinese, other languages get English; the menu footer and Settings switch it. All interface text is in `js/locales`, one file per language.
 
 ## Controls
 

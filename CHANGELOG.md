@@ -1,6 +1,11 @@
 # Changelog
 
-The same entries, in every interface language, are shown in the game under About.
+The same entries, in each interface language, are shown in the game under About.
+
+## 0.4.2 · 2026-11-26
+
+- The front page puts the two modes, missions and star race, in two large panels; the levels under them are smaller cards.
+- Interface languages are now English, Simplified Chinese and Japanese.
 
 ## 0.4.1 · 2026-11-25
 

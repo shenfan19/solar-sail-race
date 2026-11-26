@@ -2,68 +2,45 @@
 // items: one list per language; a language without its own list shows the English one.
 window.SailChangelog = [
   {
+    v: '0.4.2', date: '2026-11-26', items: {
+      en: ['The front page puts the two modes, missions and star race, in two large panels; the levels under them are smaller cards.', 'Interface languages are now English, Simplified Chinese and Japanese.'],
+      'zh-CN': ['首页把仿真任务与星际竞速两种模式做成两块大面板，下面的关卡卡片缩小。', '界面语言改为英文、简体中文、日文三种。'],
+      ja: ['トップページで、ミッションとスターレースの二つのモードを大きなパネルにし、その下のステージのカードを小さくしました。', '表示言語は英語、簡体字中国語、日本語の三つになりました。']
+    }
+  },
+  {
     v: '0.4.1', date: '2026-11-25', items: {
       en: ['The results window can be closed to look at the finished flight: the camera turns and zooms, and a burnt sail shows where it happened. One button or Esc brings the results back.', 'Fixed: a burnt sail in the star race now says it overheated, and the flight bar shows the final time after the results.'],
       'zh-CN': ['结果窗口可以关闭，查看飞完或失控的现场：视角可旋转缩放，帆烧毁时标出出事位置和那颗星的过热圈。一个按钮或 Esc 回到结果。', '修正：星际竞速里帆烧毁时，提示说明是过热烧毁；关掉结果后飞行栏显示最终时间。'],
-      'zh-TW': ['結果視窗可以關閉，查看飛完或失控的現場：視角可旋轉縮放，帆燒毀時標出出事位置和那顆星的過熱圈。一個按鈕或 Esc 回到結果。', '修正：星際競速裡帆燒毀時，提示說明是過熱燒毀；關掉結果後飛行欄顯示最終時間。'],
-      ja: ['結果ウィンドウを閉じて、終わった飛行や失敗の現場を見られます。視点の回転・ズームができ、帆が焼けた場合はその場所と星の過熱圏を示します。ボタンか Esc で結果に戻ります。', '修正：スターレースで帆が焼けたときは過熱と表示し、結果を閉じた後の飛行バーに最終時間を表示します。'],
-      ko: ['결과 창을 닫고 끝난 비행이나 실패 현장을 볼 수 있습니다. 시점 회전과 확대가 되고, 돛이 타 버린 경우 위치와 그 별의 과열 고리를 표시합니다. 버튼이나 Esc로 결과로 돌아갑니다.', '수정: 항성 레이스에서 돛이 타면 과열이라고 알려 주고, 결과를 닫은 뒤 비행 막대에 최종 시간을 표시합니다.'],
-      fr: ['La fenêtre des résultats se ferme pour examiner le vol terminé : la caméra tourne et zoome, et une voile brûlée montre l\'endroit et l\'anneau de surchauffe en cause. Un bouton ou Échap ramène les résultats.', 'Corrigé : une voile brûlée en course stellaire indique la surchauffe, et la barre de vol affiche le temps final après les résultats.'],
-      de: ['Das Ergebnisfenster lässt sich schließen, um den beendeten Flug anzusehen: Die Kamera dreht und zoomt, ein verbranntes Segel zeigt Ort und Überhitzungsring. Ein Knopf oder Esc holt das Ergebnis zurück.', 'Behoben: Ein verbranntes Segel im Sternrennen meldet Überhitzung, und die Flugleiste zeigt nach dem Ergebnis die Endzeit.'],
-      es: ['La ventana de resultados se puede cerrar para ver el vuelo terminado: la cámara gira y hace zoom, y una vela quemada muestra dónde ocurrió y el anillo de sobrecalentamiento. Un botón o Esc vuelve a los resultados.', 'Corregido: una vela quemada en la carrera estelar indica el sobrecalentamiento, y la barra de vuelo muestra el tiempo final tras los resultados.'],
-      ru: ['Окно итогов можно закрыть и осмотреть завершённый полёт: камера вращается и масштабируется, у сгоревшего паруса отмечено место и зона перегрева звезды. Кнопка или Esc возвращают итоги.', 'Исправлено: сгоревший парус в звёздной гонке сообщает о перегреве, а панель полёта после итогов показывает итоговое время.']
+      ja: ['結果ウィンドウを閉じて、終わった飛行や失敗の現場を見られます。視点の回転・ズームができ、帆が焼けた場合はその場所と星の過熱圏を示します。ボタンか Esc で結果に戻ります。', '修正：スターレースで帆が焼けたときは過熱と表示し、結果を閉じた後の飛行バーに最終時間を表示します。']
     }
   },
   {
     v: '0.4.0', date: '2026-11-25', items: {
       en: ['Pause stops only the clock. The scene stays in view, the camera still turns and zooms, and the sail can be set while paused. Leaving the page no longer pauses. Restart and menu buttons sit in the flight bar.', 'Lock 2D, in the briefing of the warm-up mission and the star races: the sail only leans forward and back, so the flight never leaves the plane. Flat star fields have their own layout, medal times, records and reference ghost.', 'Changelog, author affiliations and emails in About.'],
       'zh-CN': ['暂停只停时钟：画面保留，暂停时仍可旋转缩放视角、调整帆面。离开页面不再自动暂停。重来和菜单按钮放进飞行界面右下角。', '锁定 2D：在热身任务与星际竞速的简报里开启，帆只能前后倾，飞行始终不离开平面。平面星场有自己的星位、奖牌线、纪录与参考幽灵。', '关于页加入更新记录，以及两位作者的单位与邮箱。'],
-      'zh-TW': ['暫停只停時鐘：畫面保留，暫停時仍可旋轉縮放視角、調整帆面。離開頁面不再自動暫停。重來和選單按鈕放進飛行介面右下角。', '鎖定 2D：在熱身任務與星際競速的簡報裡開啟，帆只能前後傾，飛行始終不離開平面。平面星場有自己的星位、獎牌線、紀錄與參考幽靈。', '關於頁加入更新記錄，以及兩位作者的單位與電子郵件。'],
-      ja: ['一時停止は時計だけを止めます。画面はそのまま残り、停止中も視点の回転・ズームと帆の操作ができます。ページを離れても自動で一時停止しません。リスタートとメニューのボタンを飛行画面に置きました。', '2D ロック：ウォームアップとスターレースのブリーフィングで有効にできます。帆は前後にしか傾かず、飛行は平面から外れません。平面の星場には専用の配置、メダルタイム、記録、参考ゴーストがあります。', '「について」に更新履歴と、作者二人の所属とメールアドレスを追加しました。'],
-      ko: ['일시정지는 시계만 멈춥니다. 화면은 그대로이고, 정지 중에도 시점 회전과 확대, 돛 조작이 됩니다. 페이지를 떠나도 더 이상 자동으로 멈추지 않습니다. 다시 시작과 메뉴 버튼을 비행 화면에 두었습니다.', '2D 고정: 워밍업 임무와 항성 레이스의 브리핑에서 켤 수 있습니다. 돛은 앞뒤로만 기울어 비행이 평면을 벗어나지 않습니다. 평면 성장에는 별도의 별 배치, 메달 기록, 개인 기록, 참고 고스트가 있습니다.', '정보 화면에 변경 기록과 두 저자의 소속, 이메일을 추가했습니다.'],
-      fr: ['La pause n\'arrête que l\'horloge. La scène reste visible, la caméra tourne et zoome, et la voile se règle pendant la pause. Quitter la page ne met plus en pause. Les boutons Recommencer et Menu sont dans la barre de vol.', 'Verrouiller en 2D, dans le briefing de la mission d\'échauffement et des courses stellaires : la voile ne s\'incline que vers l\'avant ou l\'arrière, le vol ne quitte jamais le plan. Les champs plats ont leur propre disposition, leurs temps de médaille, records et fantôme de référence.', 'Journal des versions, affiliations et adresses des auteurs dans À propos.'],
-      de: ['Pause hält nur die Uhr an. Die Szene bleibt sichtbar, die Kamera dreht und zoomt, und das Segel lässt sich in der Pause stellen. Verlassen der Seite pausiert nicht mehr. Neustart und Menü liegen in der Flugleiste.', '2D sperren, im Briefing der Aufwärmmission und der Sternrennen: Das Segel neigt sich nur vor und zurück, der Flug verlässt die Ebene nie. Flache Sternfelder haben eigene Anordnung, Medaillenzeiten, Rekorde und Referenzgeist.', 'Änderungsprotokoll sowie Einrichtungen und E-Mail-Adressen der Autoren unter Über.'],
-      es: ['La pausa solo detiene el reloj. La escena sigue a la vista, la cámara gira y hace zoom, y la vela se ajusta en pausa. Salir de la página ya no pausa. Los botones Reiniciar y Menú están en la barra de vuelo.', 'Bloquear 2D, en el informe de la misión de calentamiento y de las carreras estelares: la vela solo se inclina hacia delante y atrás, y el vuelo nunca sale del plano. Los campos planos tienen su propia disposición, tiempos de medalla, récords y fantasma de referencia.', 'Registro de cambios, afiliaciones y correos de los autores en Acerca de.'],
-      ru: ['Пауза останавливает только часы. Сцена остаётся на экране, камера вращается и масштабируется, парус можно настраивать на паузе. Уход со страницы больше не ставит паузу. Кнопки «Заново» и «Меню» — на панели полёта.', 'Фиксация 2D в брифинге разминки и звёздных гонок: парус наклоняется только вперёд и назад, полёт не покидает плоскость. У плоских звёздных полей своя расстановка, медальное время, рекорды и эталонный призрак.', 'В разделе «О игре» — история изменений, места работы и почта авторов.']
+      ja: ['一時停止は時計だけを止めます。画面はそのまま残り、停止中も視点の回転・ズームと帆の操作ができます。ページを離れても自動で一時停止しません。リスタートとメニューのボタンを飛行画面に置きました。', '2D ロック：ウォームアップとスターレースのブリーフィングで有効にできます。帆は前後にしか傾かず、飛行は平面から外れません。平面の星場には専用の配置、メダルタイム、記録、参考ゴーストがあります。', '「について」に更新履歴と、作者二人の所属とメールアドレスを追加しました。']
     }
   },
   {
     v: '0.3.0', date: '2026-11-25', items: {
       en: ['Two modes: missions with real parameters, and a star race that is fiction on purpose.', 'Star race: open fields of 24, 40 and 60 fixed stars in a flattened disc. Start in the middle and cross the boundary sphere anywhere. Gravity, light and stellar wind keep their real laws and strengths.', 'Hangar: solar, electric and hybrid sails, and six attitude mechanisms that can be combined. How fast the sail turns is part of the simulation.', 'Replay codes record the craft; older codes still play.', 'Fixed: racing a pasted replay code failed.'],
       'zh-CN': ['两种模式：使用真实参数的仿真任务，以及明说虚构的星际竞速。', '星际竞速：24、40、60 颗固定恒星组成的压扁圆盘星场，从中央出发，越过边界球任意一处即完成。引力、光压、星风按真实规律和强度。', '机库：太阳帆、电动帆、混合帆三种帆型，六种可组合的姿态机构。帆面转向快慢计入仿真。', '回放码记录所用机型，旧回放码仍可回放。', '修正：用粘贴的回放码比赛时报错。'],
-      'zh-TW': ['兩種模式：使用真實參數的模擬任務，以及明說虛構的星際競速。', '星際競速：24、40、60 顆固定恆星組成的壓扁圓盤星場，從中央出發，越過邊界球任意一處即完成。引力、光壓、星風按真實規律和強度。', '機庫：太陽帆、電動帆、混合帆三種帆型，六種可組合的姿態機構。帆面轉向快慢計入模擬。', '回放碼記錄所用機型，舊回放碼仍可回放。', '修正：用貼上的回放碼比賽時報錯。'],
-      ja: ['二つのモード：実際のパラメータによるミッションと、意図的なフィクションのスターレース。', 'スターレース：24、40、60 個の固定された恒星が平たい円盤に並ぶ開けた星場。中央から出発し、境界球をどこでも越えればゴール。重力・光・恒星風は実際の法則と強さ。', '格納庫：ソーラーセイル、電気帆、ハイブリッド帆と、組み合わせ可能な六種の姿勢制御機構。帆の向きを変える速さもシミュレーションに含まれます。', 'リプレイコードに機体を記録。古いコードも再生できます。', '修正：貼り付けたリプレイコードと競うとエラーになっていました。'],
-      ko: ['두 가지 모드: 실제 매개변수의 임무와, 의도된 허구인 항성 레이스.', '항성 레이스: 고정된 항성 24, 40, 60개가 납작한 원반을 이루는 열린 성장. 가운데에서 출발해 경계구를 어디로든 넘으면 완주. 중력, 빛, 항성풍은 실제 법칙과 세기.', '격납고: 태양 돛, 전기 돛, 하이브리드 돛과 조합 가능한 여섯 가지 자세 제어 장치. 돛이 도는 속도도 시뮬레이션에 들어갑니다.', '리플레이 코드에 기체를 기록합니다. 예전 코드도 재생됩니다.', '수정: 붙여 넣은 리플레이 코드와 겨룰 때 오류가 났습니다.'],
-      fr: ['Deux modes : des missions aux paramètres réels, et une course stellaire assumée comme fiction.', 'Course stellaire : des champs ouverts de 24, 40 et 60 étoiles fixes en disque aplati. Départ au centre, arrivée en franchissant la sphère limite n\'importe où. Gravité, lumière et vent stellaire gardent leurs vraies lois et intensités.', 'Hangar : voiles solaire, électrique et hybride, six mécanismes d\'attitude combinables. La vitesse de rotation de la voile fait partie de la simulation.', 'Les codes de replay enregistrent l\'engin ; les anciens codes se rejouent toujours.', 'Corrigé : courir contre un code de replay collé échouait.'],
-      de: ['Zwei Modi: Missionen mit echten Parametern und ein bewusst erfundenes Sternrennen.', 'Sternrennen: offene Felder mit 24, 40 und 60 festen Sternen in einer flachen Scheibe. Start in der Mitte, Ziel ist die Grenzkugel an beliebiger Stelle. Schwerkraft, Licht und Sternwind mit echten Gesetzen und Stärken.', 'Hangar: Sonnen-, elektrisches und Hybridsegel, sechs kombinierbare Lageregelungen. Wie schnell sich das Segel dreht, ist Teil der Simulation.', 'Replay-Codes speichern das Fahrzeug; ältere Codes laufen weiter.', 'Behoben: Rennen gegen einen eingefügten Replay-Code schlug fehl.'],
-      es: ['Dos modos: misiones con parámetros reales y una carrera estelar que es ficción a propósito.', 'Carrera estelar: campos abiertos de 24, 40 y 60 estrellas fijas en un disco aplanado. Se sale del centro y se termina al cruzar la esfera límite por cualquier punto. Gravedad, luz y viento estelar con sus leyes y fuerzas reales.', 'Hangar: velas solar, eléctrica e híbrida, y seis mecanismos de actitud combinables. La rapidez con que gira la vela forma parte de la simulación.', 'Los códigos de repetición guardan la nave; los antiguos siguen funcionando.', 'Corregido: competir contra un código pegado fallaba.'],
-      ru: ['Два режима: миссии с реальными параметрами и звёздная гонка — намеренный вымысел.', 'Звёздная гонка: открытые поля из 24, 40 и 60 неподвижных звёзд в сплюснутом диске. Старт в центре, финиш — пересечь граничную сферу в любом месте. Гравитация, свет и звёздный ветер с настоящими законами и силой.', 'Ангар: солнечный, электрический и гибридный парус, шесть комбинируемых механизмов ориентации. Скорость поворота паруса входит в моделирование.', 'Коды повторов хранят аппарат; старые коды по-прежнему воспроизводятся.', 'Исправлено: гонка против вставленного кода повтора завершалась ошибкой.']
+      ja: ['二つのモード：実際のパラメータによるミッションと、意図的なフィクションのスターレース。', 'スターレース：24、40、60 個の固定された恒星が平たい円盤に並ぶ開けた星場。中央から出発し、境界球をどこでも越えればゴール。重力・光・恒星風は実際の法則と強さ。', '格納庫：ソーラーセイル、電気帆、ハイブリッド帆と、組み合わせ可能な六種の姿勢制御機構。帆の向きを変える速さもシミュレーションに含まれます。', 'リプレイコードに機体を記録。古いコードも再生できます。', '修正：貼り付けたリプレイコードと競うとエラーになっていました。']
     }
   },
   {
     v: '0.2.0', date: '2026-11-25', items: {
       en: ['Named Solar Sail Race 谁谓河广, with Jiafu Liu as co-author.', 'Nine languages, following the browser; front page introduction; About page; quieter colours.', 'Phone layout: the menu fits one screen; version shown in the footer and About.'],
       'zh-CN': ['定名 Solar Sail Race 谁谓河广，刘家夫为并列作者。', '九种语言，跟随浏览器；首页介绍；关于页；配色更柔和。', '手机布局：菜单一屏放下；页脚与关于页显示版本号。'],
-      'zh-TW': ['定名 Solar Sail Race 誰謂河廣，劉家夫為並列作者。', '九種語言，跟隨瀏覽器；首頁介紹；關於頁；配色更柔和。', '手機版面：選單一屏放下；頁尾與關於頁顯示版本號。'],
-      ja: ['名称を Solar Sail Race 谁谓河广 とし、劉家夫を共同作者に。', '九言語に対応しブラウザの言語に従う。トップページの紹介、「について」ページ、落ち着いた配色。', 'スマートフォン表示：メニューが一画面に収まる。フッターと「について」にバージョンを表示。'],
-      ko: ['이름을 Solar Sail Race 谁谓河广 로 정하고 Jiafu Liu를 공동 저자로.', '아홉 개 언어, 브라우저 언어를 따름. 첫 화면 소개, 정보 화면, 차분한 색.', '휴대폰 화면: 메뉴가 한 화면에 들어감. 하단과 정보 화면에 버전 표시.'],
-      fr: ['Nommé Solar Sail Race 谁谓河广, avec Jiafu Liu comme coauteur.', 'Neuf langues, selon le navigateur ; présentation en page d\'accueil ; page À propos ; couleurs plus douces.', 'Téléphone : le menu tient sur un écran ; version affichée en pied de page et dans À propos.'],
-      de: ['Benannt als Solar Sail Race 谁谓河广, mit Jiafu Liu als Mitautor.', 'Neun Sprachen nach Browsersprache; Einführung auf der Startseite; Über-Seite; ruhigere Farben.', 'Handy: Das Menü passt auf einen Bildschirm; Version in Fußzeile und Über.'],
-      es: ['Llamado Solar Sail Race 谁谓河广, con Jiafu Liu como coautor.', 'Nueve idiomas según el navegador; presentación en la portada; página Acerca de; colores más sobrios.', 'Teléfono: el menú cabe en una pantalla; versión en el pie y en Acerca de.'],
-      ru: ['Название Solar Sail Race 谁谓河广, соавтор — Цзяфу Лю.', 'Девять языков по языку браузера; вступление на главной; страница «О игре»; спокойные цвета.', 'Телефон: меню помещается на один экран; версия в подвале и в «О игре».']
+      ja: ['名称を Solar Sail Race 谁谓河广 とし、劉家夫を共同作者に。', '九言語に対応しブラウザの言語に従う。トップページの紹介、「について」ページ、落ち着いた配色。', 'スマートフォン表示：メニューが一画面に収まる。フッターと「について」にバージョンを表示。']
     }
   },
   {
     v: '0.1.0', date: '2026-11-13', items: {
       en: ['Deterministic sail simulation: a replay re-simulates bit-identically in every browser and in the verify tool.', 'Three missions: spiral out to Mars, solar polar orbit, Earth polar orbit.', 'Two control schemes, a tilt pad with a pilot guide, 3D views with presets and split view, gamepad support.'],
       'zh-CN': ['确定性帆仿真：回放在所有浏览器和校验工具里逐位重现。', '三个任务：螺旋飞到火星、太阳极轨、地球极轨。', '两种操控方案，带导引的倾斜盘，带预设视角与分屏的三维视图，支持手柄。'],
-      'zh-TW': ['確定性帆模擬：回放在所有瀏覽器和校驗工具裡逐位重現。', '三個任務：螺旋飛到火星、太陽極軌、地球極軌。', '兩種操控方案，帶導引的傾斜盤，帶預設視角與分割畫面的三維視圖，支援手把。'],
-      ja: ['決定論的な帆のシミュレーション：リプレイはどのブラウザでも検証ツールでもビット単位で同じに再現。', '三つのミッション：火星へのらせん、太陽極軌道、地球極軌道。', '二つの操作方式、ガイド付き傾斜パッド、プリセット視点と分割表示の 3D ビュー、ゲームパッド対応。'],
-      ko: ['결정론적 돛 시뮬레이션: 리플레이가 모든 브라우저와 검증 도구에서 비트 단위로 똑같이 재현.', '세 가지 임무: 화성까지 나선 비행, 태양 극궤도, 지구 극궤도.', '두 가지 조작 방식, 안내가 있는 기울기 패드, 프리셋 시점과 분할 화면의 3D 뷰, 게임패드 지원.'],
-      fr: ['Simulation de voile déterministe : un replay se rejoue au bit près dans tout navigateur et dans l\'outil de vérification.', 'Trois missions : spirale vers Mars, orbite polaire solaire, orbite polaire terrestre.', 'Deux schémas de commande, pavé d\'inclinaison avec guide, vues 3D avec préréglages et écran partagé, manette.'],
-      de: ['Deterministische Segelsimulation: Ein Replay läuft in jedem Browser und im Prüfwerkzeug bitgenau gleich.', 'Drei Missionen: Spirale zum Mars, solare Polbahn, polare Erdbahn.', 'Zwei Steuerschemata, Neigungsfeld mit Pilotenhilfe, 3D-Ansichten mit Voreinstellungen und geteiltem Bild, Gamepad.'],
-      es: ['Simulación de vela determinista: una repetición se reproduce bit a bit en cualquier navegador y en la herramienta de verificación.', 'Tres misiones: espiral hasta Marte, órbita polar solar, órbita polar terrestre.', 'Dos esquemas de control, panel de inclinación con guía, vistas 3D con preajustes y pantalla dividida, mando.'],
-      ru: ['Детерминированное моделирование паруса: повтор воспроизводится побитово в любом браузере и в инструменте проверки.', 'Три миссии: спираль к Марсу, солнечная полярная орбита, полярная орбита Земли.', 'Две схемы управления, панель наклона с подсказкой пилота, 3D-виды с пресетами и разделённым экраном, геймпад.']
+      ja: ['決定論的な帆のシミュレーション：リプレイはどのブラウザでも検証ツールでもビット単位で同じに再現。', '三つのミッション：火星へのらせん、太陽極軌道、地球極軌道。', '二つの操作方式、ガイド付き傾斜パッド、プリセット視点と分割表示の 3D ビュー、ゲームパッド対応。']
     }
   }
 ];
