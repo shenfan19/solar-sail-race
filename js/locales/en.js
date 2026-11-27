@@ -68,6 +68,7 @@ SailI18n.register('en', {
   'about.physics': 'The physics is a deterministic point-mass model: gravity of the central body plus light pressure on an ideal flat sail. Scores come from re-simulating each replay.',
   'about.author': 'Authors', 'about.source': 'Source', 'about.license': 'License', 'about.version': 'Version',
   'about.ai': 'Developed with AI coding assistance for code generation, automated testing, and documentation.',
+  'about.counts': 'The page keeps an anonymous visitor count. No cookies, no accounts and no personal data are used.',
 
   'prompt.paste': 'Paste a replay code to race against it',
   'prompt.bad': 'That is not a valid replay code.',

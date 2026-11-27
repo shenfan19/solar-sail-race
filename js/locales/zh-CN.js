@@ -68,6 +68,7 @@ SailI18n.register('zh-CN', {
   'about.physics': '物理是确定性的质点模型：中心天体的引力，加上光对理想平面帆的压力。成绩由重新模拟每一份回放得出。',
   'about.author': '作者', 'about.source': '源码', 'about.license': '许可证', 'about.version': '版本',
   'about.ai': '开发中借助 AI 编程辅助完成代码生成、自动化测试和文档。',
+  'about.counts': '本页只做匿名的访客计数，不用 cookie，不需要账号，不收集个人信息。',
 
   'prompt.paste': '粘贴回放码，与它比赛',
   'prompt.bad': '这不是有效的回放码。',
